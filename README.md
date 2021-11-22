@@ -5,6 +5,7 @@ The code is a joke, but it does what I want.
 This projects heavily relies on [Jikan](https://jikan.moe/), an unofficial MyAnimeList API.
 
 ![](https://github.com/Vernoxvernax/PyAnimeList-Shuffle/blob/main/fdsfds.gif?raw=true)
+###### speed up by 1.5, read below why
 
 ## The Code:
 Jikan provides great detailed json files, featuring all the details you could want.
