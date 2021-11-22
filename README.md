@@ -1,13 +1,24 @@
 # PyAnimeList-Shuffle
-MyAnimeList shuffle script using python
 
-#### This is my **first** python project, ever.
-The code is a joke, but I tried my best.
+The code is a joke, but it does what I want.
 
-As you can see in the gif below, this projects relies heavily on [Jikan](https://jikan.moe/), an unofficial MyAnimeList API.
-To prevent spam requests, every page (300 elements of your list) is fetched no sooner that 6 seconds after the other.
+This projects heavily relies on [Jikan](https://jikan.moe/), an unofficial MyAnimeList API.
 
 ![](https://github.com/Vernoxvernax/PyAnimeList-Shuffle/blob/main/fdsfds.gif?raw=true)
 
-You might ask yourself: Why not use the [Spin.moe](https://spin.moe/).
-Well even though it's a lot easier to use, it doesn't support filtering genres so that's why this exists.
+## The Code:
+Jikan provides great detailed json files, featuring all the details you could want.
+To fight people, making their own database, using that data, MyAnimeList itself limits it to one request every 4 seconds.
+Unfortunately, those json files are also limited to 300 entries, so for bigger lists, one will have to send multiple requests until the end has been found.
+The Jikan API also has only very little possibilities to filter the requests. Due to all this, the script fetches every page and then applies given filters, such as genre, watching status, etc. locally. Currently there is no feature to save any requests, but if there is demand for it, I could work on it.
+
+## To-Do:
+* Look into Telegram API (this would be sick, holy fuck)
+* Cache requests (ask for deletion on script startup or smth.)
+
+___
+You might ask yourself: why not use this great [Spin.moe](https://spin.moe/) app instead?
+Well even though it's a lot easier to use, it doesn't support filtering genres so why.
+___
+
+##### This is my **first** python project, ever.
