@@ -9,8 +9,11 @@ This projects heavily relies on [Jikan](https://jikan.moe/), an unofficial MyAni
 
 ## Installation / Usage:
 `git clone REPO`
+
 `cd REPO`
+
 `pip install -r requirements.txt`
+
 `python pyanimelist-shuffle.py`
 
 ## The Code:
