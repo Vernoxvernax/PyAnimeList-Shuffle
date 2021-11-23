@@ -7,6 +7,12 @@ This projects heavily relies on [Jikan](https://jikan.moe/), an unofficial MyAni
 ![](https://github.com/Vernoxvernax/PyAnimeList-Shuffle/blob/main/fdsfds.gif?raw=true)
 ###### speed up by 1.5, read below why
 
+## Installation / Usage:
+`git clone REPO
+cd REPO
+pip install -r requirements.txt
+python pyanimelist-shuffle.py`
+
 ## The Code:
 Jikan provides great detailed json files, featuring all the details you could want.
 To fight people, making their own database, using that data, MyAnimeList itself limits it to one request every 4 seconds.
