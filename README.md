@@ -8,7 +8,6 @@ This projects heavily relies on [Jikan](https://jikan.moe/), an unofficial MyAni
 ###### speed up by 1.5, read below why
 
 ## Installation / Usage:
-###### Python needs to be installed.
 `$ git clone REPO`
 
 `$ cd REPO`
@@ -16,6 +15,7 @@ This projects heavily relies on [Jikan](https://jikan.moe/), an unofficial MyAni
 `$ pip install -r requirements.txt`
 
 `$ python pyanimelist-shuffle.py`
+###### Python needs to be installed.
 
 ## The Code:
 Jikan provides great detailed json files, featuring all the details you could want.
