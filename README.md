@@ -8,9 +8,9 @@ This projects heavily relies on [Jikan](https://jikan.moe/), an unofficial MyAni
 ###### speed up by 1.5, read below why
 
 ## Installation / Usage:
-`$ git clone REPO`
+`$ git clone https://github.com/Vernoxvernax/PyAnimeList-Shuffle.git`
 
-`$ cd REPO`
+`$ cd PyAnimeList-Shuffle`
 
 `$ pip install -r requirements.txt`
 
