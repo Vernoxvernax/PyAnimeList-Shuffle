@@ -32,4 +32,4 @@ You might ask yourself: why not use this great [Spin.moe](https://spin.moe/) app
 Well even though it's a lot easier to use, it doesn't support filtering genres so that's why.
 ___
 
-##### This is my **first** python project, ever.
+##### This is my **first** python project, so don't expect anything useful.
