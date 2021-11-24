@@ -1,6 +1,6 @@
 # PyAnimeList-Shuffle
 
-The code is a joke, but it does what I want.
+Discord: DepriSheep#1841
 
 This projects heavily relies on [Jikan](https://jikan.moe/), an unofficial MyAnimeList API.
 
