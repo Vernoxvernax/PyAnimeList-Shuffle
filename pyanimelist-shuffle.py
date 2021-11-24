@@ -2,6 +2,19 @@ import json         # json files from jikan api
 import random       # choose between the items in your list
 import time         # wait 6 seconds inbetween every request
 import requests     # to get anything http related from the internet
+import os.path      # to check for cache files
+
+
+def caching():
+    cache_check = os.path.exists("cache")
+    if cache_check:
+        print("cache found")
+    else:
+        print("cache not found")
+    print("Do you want to enable caching?\n"
+          "Further information can be found here: ")
+    print("")
+    input()
 
 
 def reading_details():
@@ -38,7 +51,7 @@ def reading_details():
     m_status_b = ["0", "1", "2", "3", "4", "5"]
     m_status = input_c(m_status_b)
     if m_status in m_status_b:
-        m_status = m_status_a[m_status_b.index(m_status)]
+        m_status = m_status_b[m_status_b.index(m_status)]
     elif m_status not in m_status_b:
         m_status = "n"
     print("\nAny preferences on the status:\n"
@@ -120,11 +133,17 @@ def reading_details():
     for x in range(24):
         output = str(left2[x] + '\t|      ' + right2[x])
         print(output)
-    ch_genre_a = [0] * 44
+    if m_type == "mangalist":
+        print("\nManga exclusive tags:\n> Doujinshi (45)\n> Gender Bender (46)")
+        ch_genre_a = [0] * 47
+        ch_genre_b = [1, 2, 5, 46, 28, 4, 8, 10, 26, 47, 14, 7, 22, 24, 36, 30, 37, 45, 48, 9, 49, 12, 3,
+                      6, 11, 35, 13, 17, 18, 38, 19, 20, 39, 40, 21, 23, 29, 31, 32, 42, 15, 41, 25, 27, 43, 44]
+    else:
+        ch_genre_a = [0] * 44
+        ch_genre_b = [1, 2, 5, 46, 28, 4, 8, 10, 26, 47, 14, 7, 22, 24, 36, 30, 37, 41, 48, 9, 49, 12, 3,
+                      6, 11, 35, 13, 17, 18, 38, 19, 20, 39, 40, 21, 23, 29, 31, 32, 43, 15, 42, 25, 27]
     for x in range(0, len(ch_genre_a)):
         ch_genre_a[x] = x
-    ch_genre_b = [1, 2, 5, 46, 28, 4, 8, 10, 26, 47, 14, 7, 22, 24, 36, 30, 37, 41, 48, 9, 49, 12, 3,
-                  6, 11, 35, 13, 17, 18, 38, 19, 20, 39, 40, 21, 23, 29, 31, 32, 43, 15, 42, 25, 27]
     # DON'T CHANGE THESE VALUES ABOVE. MyAnimeList has very weird sorting.
     str_ch_genre_a = ch_genre_a.copy()
     str_ch_genre_a = map(str, str_ch_genre_a)
@@ -140,7 +159,7 @@ def reading_details():
 def requesting():
     # genre_s is passing the json from jikan through the genres and airing/... status.
     # Yes, I tried combining the json files but in the end it just added a few more lines of code.
-    def genre_s(query, mtype, c_page, shuffle_title, shuffle_url):
+    def genre_s(query, mtype, c_page, shuffle_title, shuffle_url, status):
         parsed_list = []
         item_list = []
         if m_type == "animelist":
@@ -167,6 +186,13 @@ def requesting():
                     if item_list[pref_index]["airing_status"] == int(pref):
                         pref_list.append(pref_check)
                 item_list = pref_list.copy()
+            if status != "n":
+                status_list = []
+                for status_check in item_list:
+                    status_index = item_list.index(status_check)
+                    if item_list[status_index]["watching_status"] == int(status):
+                        status_list.append(status_check)
+                item_list = status_list.copy()
             if not item_list:
                 empty = ""
                 print("Content of page {} does not meet your filters.".format(c_page))
@@ -200,6 +226,13 @@ def requesting():
                     if item_list[pref_index]["publishing_status"] == int(pref):
                         pref_list.append(pref_check)
                 item_list = pref_list.copy()
+            if status != "n":
+                status_list = []
+                for status_check in item_list:
+                    status_index = item_list.index(status_check)
+                    if item_list[status_index]["reading_status"] == int(status):
+                        status_list.append(status_check)
+                item_list = status_list.copy()
             if not item_list:
                 empty = ""
                 print("Content of page {} does not meet your filters.".format(c_page))
@@ -222,7 +255,7 @@ def requesting():
     x = 1
     print("\nFetching page:", x)
     # Change below domain, if you are having connection issues.
-    c_url = str("https://api.jikan.moe/v3/user/{}/{}/{}".format(username, m_type, m_status))
+    c_url = str("https://api.jikan.moe/v3/user/{}/{}".format(username, m_type))
     request = requests.get(c_url, timeout=100)
     json_body = json.loads(request.text)
     length = len(str(json_body))
@@ -235,18 +268,18 @@ def requesting():
     elif "BadResponseException" in str(json_body):
         print("Your username does not exist, or the connection to MyAnimeList failed.")
         return
-    shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url)
+    shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url, m_status)
     c_page = c_page + 1
     while length > 150:
         time.sleep(6)
         print("Fetching page:", c_page)
-        n_url = str("https://api.jikan.moe/v3/user/{}/{}/{}?page={}".format(username, m_type, m_status, c_page))
+        n_url = str("https://api.jikan.moe/v3/user/{}/{}?page={}".format(username, m_type, c_page))
         request = requests.get(n_url, timeout=100)
         json_body = json.loads(request.text)
         if "BadResponseException" in str(json_body):
             print("Your username does not exist, or the connection to MyAnimeList failed.")
             return
-        shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url)
+        shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url, m_status)
         c_url = c_url + n_url
         c_page = c_page + 1
         length = len(str(json_body))
@@ -269,6 +302,7 @@ def main():
     print("This script uses the unofficial Jikan API\n"
           "Please don't send more than 2 requests per second.\n")
     # No, srsly. Their servers time out really easily.
+    # caching()
     requesting()
     print("\npython script finished.")
 
