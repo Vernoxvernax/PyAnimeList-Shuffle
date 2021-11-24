@@ -302,7 +302,7 @@ def main():
     print("This script uses the unofficial Jikan API\n"
           "Please don't send more than 2 requests per second.\n")
     # No, srsly. Their servers time out really easily.
-    # Just some stuff for the future:
+    # Just some stuff for the future
     # caching()
     requesting()
     print("\npython script finished.")
