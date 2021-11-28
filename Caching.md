@@ -8,7 +8,7 @@ Of course this also means, changes on MyAnimeList.net
 will not affect this cache and will lead to 
 outdated information displayed.
 ___
-### How it works:
+### How:
 
 Next to `pyanimelist-shuffle.py` a new folder
 will be created named: `pylist-cache`.
