@@ -47,13 +47,13 @@ def reading_details():
           "> On-Hold (3)\n"
           "> Dropped (4)\n"
           "> Plan to Watch/Plan to Read (5)")
-    m_status_a = ["all", "watching", "completed", "onhold", "dropped", "ptw"]
+    m_status_a = ["1", "2", "3", "4", "5", "6"]
     m_status_b = ["0", "1", "2", "3", "4", "5"]
     m_status = input_c(m_status_b)
-    if m_status in m_status_b:
-        m_status = m_status_b[m_status_b.index(m_status)]
-    elif m_status not in m_status_b:
+    if m_status == "0":
         m_status = "n"
+    if m_status in m_status_b:
+        m_status = m_status_a[m_status_b.index(m_status)]
     print("\nAny preferences on the status:\n"
           "> None (0)\n"
           "> Airing/Publishing (1)\n"
