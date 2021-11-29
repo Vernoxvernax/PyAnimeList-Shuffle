@@ -26,8 +26,9 @@ The Jikan API also has only very little possibilities to filter the requests. Du
 ## To-Do:
 * Look into Telegram API (this would be sick, holy fuck)
 * Cache requests (ask for deletion on script startup or smth.)
-* Implement filtering after type (Movie,TV-Show,OVA)
+* Implement filtering after type (Movie,TV-Show,OVA) and
 * Max/Min amount of EPs/Chatpers
+* More detailed output (genre, score, EP count)
 
 ___
 You might ask yourself: why not use this great [Spin.moe](https://spin.moe/) app instead?
