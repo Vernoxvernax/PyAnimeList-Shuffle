@@ -4,9 +4,6 @@ Discord: DepriSheep#1841
 
 This projects heavily relies on [Jikan](https://jikan.moe/), an unofficial MyAnimeList API.
 
-![](https://github.com/Vernoxvernax/PyAnimeList-Shuffle/blob/main/fdsfds.gif?raw=true)
-###### speed up by 1.5, read below why
-
 ## Installation / Usage:
 `$ git clone https://github.com/Vernoxvernax/PyAnimeList-Shuffle.git`
 
@@ -29,6 +26,9 @@ The Jikan API also has only very little possibilities to filter the requests. Du
 * Implement filtering after type (Movie,TV-Show,OVA) and
 * Max/Min amount of EPs/Chatpers
 * More detailed output (genre, score, EP count)
+
+## Demonstration:
+![](https://i.imgur.com/HOcWene.png)
 
 ___
 You might ask yourself: why not use this great [Spin.moe](https://spin.moe/) app instead?
