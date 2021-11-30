@@ -1,6 +1,7 @@
 # PyAnimeList-Shuffle
 
-Discord: DepriSheep#1841
+##### Contact:
+##### Discord: DepriSheep#1841
 
 This projects heavily relies on [Jikan](https://jikan.moe/), an unofficial MyAnimeList API.
 
