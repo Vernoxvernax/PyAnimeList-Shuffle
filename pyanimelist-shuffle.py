@@ -2,6 +2,7 @@ import json         # json files from jikan api
 import random       # choose between the items in your list
 import time         # wait 6 seconds inbetween every request
 import requests     # to get anything http related from the internet
+from requests.exceptions import Timeout # to handle timeouts more efficiently
 import os.path      # to check for cache files
 
 
@@ -195,7 +196,7 @@ def requesting():
                 item_list = status_list.copy()
             if not item_list:
                 empty = ""
-                print("Content of page {} does not meet your filters.".format(c_page))
+                print("[INF] Content of page {} did not meet your filters.".format(c_page))
                 return shuffle_title, shuffle_url
             for item in item_list:
                 item_index = item_list.index(item)
@@ -235,7 +236,7 @@ def requesting():
                 item_list = status_list.copy()
             if not item_list:
                 empty = ""
-                print("Content of page {} does not meet your filters.".format(c_page))
+                print("[INF] Content of page {} did not meet your filters.".format(c_page))
                 return shuffle_title, shuffle_url
             for item in item_list:
                 item_index = item_list.index(item)
@@ -256,7 +257,21 @@ def requesting():
     print("\nFetching page:", x)
     # Change below domain, if you are having connection issues.
     c_url = str("https://api.jikan.moe/v3/user/{}/{}".format(username, m_type))
-    request = requests.get(c_url, timeout=100)
+    # try:
+    #     request = requests.get(c_url, timeout=6)
+    # except Timeout:
+    #     print("API didn't respond. Trying again in 4 seconds...")
+    #     time.sleep(4)
+    #     request = requests.get(c_url, timeout=8)
+    req_status = True
+    while req_status:
+        try:
+            request = requests.get(c_url, timeout=6)
+        except Timeout:
+            print("API didn't respond. Trying again in 4 seconds...")
+            time.sleep(4)
+        else:
+            req_status = False
     json_body = json.loads(request.text)
     length = len(str(json_body))
     shuffle_title = []
@@ -265,8 +280,11 @@ def requesting():
     if length < 145:
         print("Your filters don't seem to match any content.")
         return
+    elif '"status":400,' in json_body:
+        print("That username doesn't exist.")
+        return
     elif "BadResponseException" in str(json_body):
-        print("Your username does not exist, or the connection to MyAnimeList failed.")
+        print("The connection to MyAnimeList failed.")
         return
     shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url, m_status)
     c_page = c_page + 1
@@ -274,10 +292,18 @@ def requesting():
         time.sleep(6)
         print("Fetching page:", c_page)
         n_url = str("https://api.jikan.moe/v3/user/{}/{}?page={}".format(username, m_type, c_page))
-        request = requests.get(n_url, timeout=100)
+        req_status = True
+        while req_status:
+            try:
+                request = requests.get(n_url, timeout=6)
+            except Timeout:
+                print("API didn't respond. Trying again in 4 seconds...")
+                time.sleep(4)
+            else:
+                req_status = False
         json_body = json.loads(request.text)
         if "BadResponseException" in str(json_body):
-            print("Your username does not exist, or the connection to MyAnimeList failed.")
+            print("The connection to MyAnimeList failed.")
             return
         shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url, m_status)
         c_url = c_url + n_url
