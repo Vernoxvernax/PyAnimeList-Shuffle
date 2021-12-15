@@ -1,4 +1,1 @@
-
-jikanpy~=4.3.2
 requests~=2.26.0
-jsonmerge~=1.8.0
