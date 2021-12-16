@@ -5,13 +5,12 @@
 This projects heavily relies on [Jikan](https://jikan.moe/), an unofficial MyAnimeList API.
 
 ## Installation / Usage:
-`$ git clone https://github.com/Vernoxvernax/PyAnimeList-Shuffle.git`
-
-`$ cd PyAnimeList-Shuffle`
-
-`$ pip install -r requirements.txt`
-
-`$ python pyanimelist-shuffle.py`
+```
+$ git clone https://github.com/Vernoxvernax/PyAnimeList-Shuffle.git
+$ cd PyAnimeList-Shuffle
+$ pip install -r requirements.txt
+$ python pyanimelist-shuffle.py
+```
 ###### Python needs to be installed.
 
 ## The Code:
