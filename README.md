@@ -28,7 +28,7 @@ The Jikan API also has only very little possibilities to filter the requests. Du
 
 ## Demonstration:
 ![](https://i.imgur.com/HOcWene.png)
-
+###### image is slightly outdated
 ___
 You might ask yourself: why not use this great [Spin.moe](https://spin.moe/) app instead?
 Well even though it's a lot easier to use, it doesn't support filtering genres so that's why.
