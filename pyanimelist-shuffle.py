@@ -127,33 +127,6 @@ def settings():
             config.write("[cache]\nenabled = {}\ndefault_username = {}".format(caching_enabled, username))
 
 
-def caching():
-    print("\nDo you want to enable caching?\n"
-          "Further information can be found here: "
-          "https://github.com/Vernoxvernax/PyAnimeList-Shuffle/blob/main/Caching.md", end="")
-    q = "h"
-    counter = 0
-    while q not in "yn":
-        if counter > 0:
-            print("Input invalid!\nPlease try again.")
-        q = input("\n: ")
-        counter = counter + 1
-    if q == "n":
-        return "nn"
-    if os.path.exists("pylist-cache"):
-        for x in os.listdir(r"pylist-cache"):
-            if x.endswith(".json"):
-                print("[INF] Cache found.")
-                return "yy"
-        else:
-            print("[INF] Cache was already enabled, but currently empty.")
-    else:
-        print("[INF] Cache currently disabled.")
-        os.mkdir("pylist-cache")
-        print("Cache location has been created.")
-        return "yn"
-
-
 def reading_details():
     global username
     # reading_details() is doing what it's named after. Everything else is done in requesting().
