@@ -11,14 +11,15 @@ ___
 ### How:
 
 Next to `pyanimelist-shuffle.py` a new folder
-will be created named: `pylist-cache`.
+will be created with the name: `pylist-cache`.
 
-After the script has fetched your list, it
-will then save it like this: 
-`username-animelist-p1.json` in the
-cache folder.
+While downloading your list, the script will
+save each part to the cache folder.
+
+e.g: `username-animelist-p1.json`
 
 ___
 ### Usage:
 If enabled in the settings, anime and manga-lists
-will be saved to `pylist-cache`, after being requested from jikan.
+will be saved to `pylist-cache`, after requested from jikan.
+When shuffling again, your list will be loaded from the cache folder.

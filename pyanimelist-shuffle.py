@@ -15,6 +15,8 @@ def op():
         cache_config = config["cache"]
         username = cache_config["default_username"]
         cache_check = cache_config["enabled"]
+        if not os.path.exists("pylist-cache"):
+            os.makedirs("pylist-cache")
     elif not os.path.exists("pyanimelist.conf"):
         username = ""
         cache_check = ""
