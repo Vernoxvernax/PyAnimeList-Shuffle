@@ -4,7 +4,7 @@ import time         # wait 6 seconds inbetween every request
 import requests     # to get anything http related from the internet
 from requests.exceptions import Timeout  # to handle timeouts more efficiently
 import os.path      # to check for cache files
-import configparser   # handeling config files
+import configparser   # handling config files
 
 
 def op():
