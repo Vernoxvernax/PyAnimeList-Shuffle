@@ -2,24 +2,160 @@ import json         # json files from jikan api
 import random       # choose between the items in your list
 import time         # wait 6 seconds inbetween every request
 import requests     # to get anything http related from the internet
-from requests.exceptions import Timeout # to handle timeouts more efficiently
+from requests.exceptions import Timeout  # to handle timeouts more efficiently
 import os.path      # to check for cache files
+import configparser   # handeling config files
+
+
+def op():
+    global username, cache_check
+    if os.path.exists("pyanimelist.conf"):
+        config = configparser.ConfigParser()
+        config.read("pyanimelist.conf")
+        cache_config = config["cache"]
+        username = cache_config["default_username"]
+        cache_check = cache_config["enabled"]
+    elif not os.path.exists("pyanimelist.conf"):
+        username = ""
+        cache_check = ""
+    print("Please choose what to do:\n[1] MyAnimeList SHUFFLE\n[2] Open the settings (caching)")
+    answer_op = False
+    while not answer_op:
+        menu_navigation = input(": ")
+        if menu_navigation in "12":
+            answer_op = True
+        else:
+            print("Input invalid!\nPlease try again.")
+    if menu_navigation == "1":
+        requesting()
+    elif menu_navigation == "2":
+        settings()
+
+
+def settings():
+    def ask_caching():
+        answer_settings = False
+        while not answer_settings:
+            caching_enabled = input(": ")
+            if caching_enabled in "YNyn":
+                answer_settings = True
+            else:
+                print("Input invalid!\nPlease try again.")
+        if caching_enabled in "Yy":
+            return "true"
+        else:
+            return "false"
+
+    def ask_default_username():
+        answer_settings = False
+        while not answer_settings:
+            username = input(": ")
+            if " " not in username:
+                answer_settings = True
+            else:
+                print("Username incorrect! (spaces)\nPlease try again.")
+        return username
+    if not os.path.exists("pyanimelist.conf"):
+        print("\nNo config file found."
+              "\n[Y] create pyanimelist.conf\n[N] exit to menu")
+        answer_settings = False
+        while not answer_settings:
+            config_file_question = input(": ")
+            if config_file_question in "YNyn":
+                answer_settings = True
+            else:
+                print("Input invalid!\nPlease try again.")
+    else:
+        print("\n[INF] Configuration file found.\n\nWhich settings do you want to change?")
+        config = configparser.ConfigParser()
+        config.read("pyanimelist.conf")
+        cache_config = config["cache"]
+        if cache_config["enabled"] == "false":
+            cache_enabled = "disabled"
+        else:
+            cache_enabled = "enabled"
+        username = cache_config["default_username"]
+        print("[1] cache = {}\n[2] default_username = {}\n[N]one".format(cache_enabled, username))
+        answer_settings = False
+        while not answer_settings:
+            config_change = input(": ")
+            if config_change in "12Nn":
+                answer_settings = True
+            else:
+                print("\nInput invalid!\nPlease try again.")
+        if config_change == "1":
+            print("\nDo you want to enable caching by default? (recommended)"
+                  "\nInformation on cache can be found here: "
+                  "https://github.com/Vernoxvernax/PyAnimeList-Shuffle/blob/main/Caching.md"
+                  "\n[Y]es / [N]o")
+            cache_enabled = ask_caching()
+            config.set('cache', 'enabled', cache_enabled)
+            with open("pyanimelist.conf", "w") as config_file:
+                config.write(config_file)
+            if cache_config["enabled"] == "false":
+                cache_enabled = "disabled"
+            else:
+                cache_enabled = "enabled"
+            print("\n[INF] The cache has been {}.\n".format(cache_enabled))
+            main()
+        elif config_change == "2":
+            print("What should be the default MyAnimeList username?"
+                  "\n- Enter nothing, if not preferred.")
+            username = ask_default_username()
+            config.set('cache', 'default_username', username)
+            with open("pyanimelist.conf", "w") as config_file:
+                config.write(config_file)
+            if username == "":
+                print("\n[INF] The default username has been disabled.\n")
+            else:
+                print("\n[INF] The default username has been set to: {}.\n".format(username))
+            main()
+        else:
+            main()
+    if config_file_question in "Yy":
+        print("\nDo you want to enable caching by default? (recommended)"
+              "\nInformation on cache can be found here: "
+              "https://github.com/Vernoxvernax/PyAnimeList-Shuffle/blob/main/Caching.md"
+              "\n[Y]es / [N]o")
+        caching_enabled = ask_caching()
+        print("What should be the default MyAnimeList username?"
+              "\n- Enter nothing, if not preferred.")
+        username = ask_default_username()
+        with open("pyanimelist.conf", "a+") as config:
+            config.write("[cache]\nenabled = {}\ndefault_username = {}".format(caching_enabled, username))
 
 
 def caching():
-    cache_check = os.path.exists("cache")
-    if cache_check:
-        print("cache found")
+    print("\nDo you want to enable caching?\n"
+          "Further information can be found here: "
+          "https://github.com/Vernoxvernax/PyAnimeList-Shuffle/blob/main/Caching.md", end="")
+    q = "h"
+    counter = 0
+    while q not in "yn":
+        if counter > 0:
+            print("Input invalid!\nPlease try again.")
+        q = input("\n: ")
+        counter = counter + 1
+    if q == "n":
+        return "nn"
+    if os.path.exists("pylist-cache"):
+        for x in os.listdir(r"pylist-cache"):
+            if x.endswith(".json"):
+                print("[INF] Cache found.")
+                return "yy"
+        else:
+            print("[INF] Cache was already enabled, but currently empty.")
     else:
-        print("cache not found")
-    print("Do you want to enable caching?\n"
-          "Further information can be found here: ")
-    print("")
-    input()
+        print("[INF] Cache currently disabled.")
+        os.mkdir("pylist-cache")
+        print("Cache location has been created.")
+        return "yn"
 
 
 def reading_details():
+    global username
     # reading_details() is doing what it's named after. Everything else is done in requesting().
+
     def input_c(x):
         y = ""
         z = 0
@@ -32,10 +168,11 @@ def reading_details():
                 y = input(": ")
         z = 0
         return y
-    username = str(input("Please enter your MyAnimeList username here: "))
-    print("Select from the following list:\n"
+    if username == "":
+        username = str(input("\nPlease enter your MyAnimeList username here: "))
+    print("\nSelect from the following list:\n"
           "> AnimeList (1)\n> MangaList (2)")
-    x = input_c(['1', "anime", "ANIME", "Anime", "AnimeList", "Animelist", "animelist",
+    x = input_c(["1", "anime", "ANIME", "Anime", "AnimeList", "Animelist", "animelist",
                  "2", "manga", "MANGA", "Manga", "MangaList", "Mangalist", "mangalist"])
     if x in ["1", "anime", "ANIME", "Anime", "AnimeList", "Animelist", "animelist"]:
         m_type = str("animelist")
@@ -145,7 +282,7 @@ def reading_details():
                       6, 11, 35, 13, 17, 18, 38, 19, 20, 39, 40, 21, 23, 29, 31, 32, 43, 15, 42, 25, 27]
     for x in range(0, len(ch_genre_a)):
         ch_genre_a[x] = x
-    # DON'T CHANGE THESE VALUES ABOVE. MyAnimeList has very weird sorting.
+    # DON'T CHANGE THESE VALUES ABOVE. MyAnimeList has very weird genre numbering.
     str_ch_genre_a = ch_genre_a.copy()
     str_ch_genre_a = map(str, str_ch_genre_a)
     genre = input_c(list(str_ch_genre_a))
@@ -154,10 +291,12 @@ def reading_details():
     elif int(genre) in ch_genre_a:
         genre = int(genre) - 1
         genre = ch_genre_b[ch_genre_a.index(int(genre))]
-    return username, m_type, m_status, genre, pref, genre
+    return m_type, m_status, genre, pref, genre
 
 
 def requesting():
+    global cache_check
+
     # genre_s is passing the json from jikan through the genres and airing/... status.
     # Yes, I tried combining the json files but in the end it just added a few more lines of code.
     def genre_s(query, mtype, c_page, shuffle_title, shuffle_url, status):
@@ -244,17 +383,25 @@ def requesting():
                 shuffle_url.append(item_list[item_index]['url'])
             return shuffle_title, shuffle_url
     # From here on requesting() actually starts. The above are just functions, called later on.
-    username, m_type, m_status, genre, pref, genre = reading_details()
+    m_type, m_status, genre, pref, genre = reading_details()
     if username == "":
-        username, m_type, m_status, genre, pref, genre = reading_details()
+        m_type, m_status, genre, pref, genre = reading_details()
     if m_type == "animelist":
         type_short = "anime"
     elif m_type == "mangalist":
         type_short = "manga"
     else:
-        print("Error occurred. Please contact the dev.")
+        print("Error occurred. Please don't contact the dev.\nHe's busy watching twitch.")
     x = 1
-    print("\nFetching page:", x)
+    if cache_check == "true" and os.path.isfile(r"./pylist-cache/{}-{}-p1.json".format(username, m_type)):
+        with open("./pylist-cache/{}-{}-p1.json".format(username, m_type)) as json_file:
+            json_body = json.load(json_file)
+        req_status = False
+        print("\n[INF] Using cache for provided username.")
+        sleeeping = 0
+    else:
+        req_status = True
+    print("Loading page:", x)
     # Change below domain, if you are having connection issues.
     c_url = str("https://api.jikan.moe/v3/user/{}/{}".format(username, m_type))
     # try:
@@ -263,16 +410,19 @@ def requesting():
     #     print("API didn't respond. Trying again in 4 seconds...")
     #     time.sleep(4)
     #     request = requests.get(c_url, timeout=8)
-    req_status = True
     while req_status:
         try:
             request = requests.get(c_url, timeout=6)
+            sleeeping = 6
         except Timeout:
             print("API didn't respond. Trying again in 4 seconds...")
             time.sleep(4)
         else:
+            if cache_check == "true" and not os.path.isfile(r"./pylist-cache/{}-{}-p1.json".format(username, m_type)):
+                with open("./pylist-cache/{}-{}-p1.json".format(username, m_type), "a+") as json_file:
+                    json_file.write(request.text)
+            json_body = json.loads(request.text)
             req_status = False
-    json_body = json.loads(request.text)
     length = len(str(json_body))
     shuffle_title = []
     shuffle_url = []
@@ -289,10 +439,19 @@ def requesting():
     shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url, m_status)
     c_page = c_page + 1
     while length > 150:
-        time.sleep(6)
-        print("Fetching page:", c_page)
+        if cache_check == "true" and os.path.isfile(r"./pylist-cache/{}-{}-p{}.json".format(username, m_type, c_page)):
+            try:
+                with open("./pylist-cache/{}-{}-p{}.json".format(username, m_type, c_page)) as json_file:
+                    json_body = json.load(json_file)
+            except:
+                json_body = ""
+                sleeeping = 6
+            req_status = False
+        else:
+            req_status = True
+        time.sleep(sleeeping)
+        print("Loading page:", c_page)
         n_url = str("https://api.jikan.moe/v3/user/{}/{}?page={}".format(username, m_type, c_page))
-        req_status = True
         while req_status:
             try:
                 request = requests.get(n_url, timeout=6)
@@ -300,8 +459,11 @@ def requesting():
                 print("API didn't respond. Trying again in 4 seconds...")
                 time.sleep(4)
             else:
+                if cache_check == "true" and not os.path.isfile(r"./pylist-cache/{}-{}-p{}.json".format(username, m_type, c_page)):
+                    with open("./pylist-cache/{}-{}-p{}.json".format(username, m_type, c_page), "a+") as json_file:
+                        json_file.write(request.text)
+                json_body = json.loads(request.text)
                 req_status = False
-        json_body = json.loads(request.text)
         if "BadResponseException" in str(json_body):
             print("The connection to MyAnimeList failed.")
             return
@@ -325,12 +487,12 @@ def requesting():
 
 
 def main():
-    print("This script uses the unofficial Jikan API\n"
-          "Please don't send more than 2 requests per second.\n")
+    print("This script uses the unofficial Jikan API.\n"
+          "Please don't spam requests.\n")
     # No, srsly. Their servers time out really easily.
-    # Just some stuff for the future:
-    # caching()
-    requesting()
+    op()
+    # cache = caching()
+    # requesting(cache)
     print("\npython script finished.")
 
 
