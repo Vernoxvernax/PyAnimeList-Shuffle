@@ -8,7 +8,7 @@ This projects heavily relies on [Jikan](https://jikan.moe/), an unofficial MyAni
 ```
 $ git clone https://github.com/Vernoxvernax/PyAnimeList-Shuffle.git
 $ cd PyAnimeList-Shuffle
-$ pip install -r requirements.txt
+$ python -m pip install -r requirements.txt
 $ python pyanimelist-shuffle.py
 ```
 ###### Python needs to be installed.
