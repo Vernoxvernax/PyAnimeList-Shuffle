@@ -9,6 +9,9 @@ import configparser   # handling config files
 
 def op():
     global username, cache_check
+    # This function clearly checks what the user wants to do when executing the script.
+
+    # Checking if the config file and cache folder is existent.
     if os.path.exists("pyanimelist.conf"):
         config = configparser.ConfigParser()
         config.read("pyanimelist.conf")
@@ -20,11 +23,14 @@ def op():
     elif not os.path.exists("pyanimelist.conf"):
         username = ""
         cache_check = ""
-    print("Please choose what to do:\n[1] MyAnimeList SHUFFLE\n[2] Open the settings (caching)")
+    print("Please choose what to do:"
+          "\n[1] MyAnimeList SHUFFLE"
+          "\n[2] Open the settings (caching, default username)"
+          "\n[E] Exit.")
     answer_op = False
     while not answer_op:
         menu_navigation = input(": ")
-        if menu_navigation in "12":
+        if menu_navigation in "12Ee":
             answer_op = True
         else:
             print("Input invalid!\nPlease try again.")
@@ -32,9 +38,17 @@ def op():
         requesting()
     elif menu_navigation == "2":
         settings()
+        print("")
+        op()
+    elif menu_navigation in "Ee":
+        return
 
 
 def settings():
+    # Should be pretty clear. This function builds the config file, but
+    # can also edit it, if chosen.
+
+    # nested function with "ask_" basically just validate user-input.
     def ask_caching():
         answer_settings = False
         while not answer_settings:
@@ -55,18 +69,34 @@ def settings():
             if " " not in username:
                 answer_settings = True
             else:
-                print("Username incorrect! (spaces)\nPlease try again.")
+                print("Username incorrect! (spaces?)\nPlease try again.")
         return username
+    # check if the config file is _not_ existent, so a new one can be created, or not.
     if not os.path.exists("pyanimelist.conf"):
         print("\nNo config file found."
-              "\n[Y] create pyanimelist.conf\n[N] exit to menu")
+              "\n[C] create pyanimelist.conf\n[E] exit to menu")
         answer_settings = False
         while not answer_settings:
             config_file_question = input(": ")
-            if config_file_question in "YNyn":
+            if config_file_question in "CcEe":
                 answer_settings = True
             else:
                 print("Input invalid!\nPlease try again.")
+        if config_file_question and config_file_question in "Cc":
+            print("\nDo you want to enable caching by default? (recommended)"
+                  "\nInformation on cache can be found here: "
+                  "https://github.com/Vernoxvernax/PyAnimeList-Shuffle/blob/main/Caching.md"
+                  "\n[Y]es / [N]o")
+            caching_enabled = ask_caching()
+            print("\nWhat should be the default MyAnimeList username?"
+                  "\n- Enter nothing, if not preferred.")
+            username = ask_default_username()
+            # writing input to the local file
+            with open("pyanimelist.conf", "a+") as config:
+                config.write("[cache]\nenabled = {}\ndefault_username = {}".format(caching_enabled, username))
+        else:
+            return
+    # If the config is existent, ask what the user wants to change, if anything at all.
     else:
         print("\n[INF] Configuration file found.\n\nWhich settings do you want to change?")
         config = configparser.ConfigParser()
@@ -99,7 +129,7 @@ def settings():
             else:
                 cache_enabled = "enabled"
             print("\n[INF] The cache has been {}.\n".format(cache_enabled))
-            main()
+            return
         elif config_change == "2":
             print("What should be the default MyAnimeList username?"
                   "\n- Enter nothing, if not preferred.")
@@ -111,25 +141,14 @@ def settings():
                 print("\n[INF] The default username has been disabled.\n")
             else:
                 print("\n[INF] The default username has been set to: {}.\n".format(username))
-            main()
+            return
         else:
-            main()
-    if config_file_question in "Yy":
-        print("\nDo you want to enable caching by default? (recommended)"
-              "\nInformation on cache can be found here: "
-              "https://github.com/Vernoxvernax/PyAnimeList-Shuffle/blob/main/Caching.md"
-              "\n[Y]es / [N]o")
-        caching_enabled = ask_caching()
-        print("What should be the default MyAnimeList username?"
-              "\n- Enter nothing, if not preferred.")
-        username = ask_default_username()
-        with open("pyanimelist.conf", "a+") as config:
-            config.write("[cache]\nenabled = {}\ndefault_username = {}".format(caching_enabled, username))
+            return
 
 
 def reading_details():
     global username
-    # reading_details() is doing what it's named after. Everything else is done in requesting().
+    # reading_details() is doing what it's named after. Input is returned to requesting().
 
     def input_c(x):
         y = ""
@@ -141,11 +160,12 @@ def reading_details():
             else:
                 z = 1
                 y = input(": ")
-        z = 0
         return y
     if username == "":
         username = str(input("\nPlease enter your MyAnimeList username here: "))
-    print("\nSelect from the following list:\n"
+    else:
+        print("\nSearching for user: {}.".format(username))
+    print("\nSelect the type of list:\n"
           "> AnimeList (1)\n> MangaList (2)")
     x = input_c(["1", "anime", "ANIME", "Anime", "AnimeList", "Animelist", "animelist",
                  "2", "manga", "MANGA", "Manga", "MangaList", "Mangalist", "mangalist"])
@@ -153,6 +173,32 @@ def reading_details():
         m_type = str("animelist")
     elif x in ["2", "manga", "MANGA", "Manga", "MangaList", "Mangalist", "mangalist"]:
         m_type = str("mangalist")
+    if m_type == "animelist":
+        media_type_input = ["0", "1", "2", "3", "4", "5", "6"]
+        media_type_output = ["", "TV", "OVA", "Movie", "Special", "ONA", "Music"]
+        print("\nPlease choose the type of anime:\n"
+              "> All (0)\n"
+              "> TV-Show (1)\n"
+              "> OVA (2)\n"
+              "> Movie (3)\n"
+              "> Special (4)\n"
+              "> ONA (5)\n"
+              "> Music (6)")
+        media_type = input_c(media_type_input)
+    elif m_type == "mangalist":
+        media_type_input = ["0", "1", "2", "3", "4", "5", "6", "7"]
+        media_type_output = ["", "Manga", "Oneshot", "Doujinshi", "Novel", "Light Novel", "Manhwa", "Manhua"]
+        print("\nPlease choose the type of manga:\n"
+              "> All (0)\n"
+              "> Manga (1)\n"
+              "> One-Shot (2)\n"
+              "> Doujinshi (3)"
+              "> Novel (4)\n"
+              "> Light Novel (5)\n"
+              "> Manhwa (6)\n"
+              "> Manhua (7)")
+        media_type = input_c(media_type_input)
+    media_type = media_type_output[media_type_input.index(media_type)]
     print("\nDo you want one of these filters:\n"
           "> None (0)\n"
           "> Watching/Reading (1)\n"
@@ -233,7 +279,7 @@ def reading_details():
              "> Seinen (42)        ",
              "> Shoujo (43)        ",
              "> Shounen (44)       "]
-    # Above and below are only to display those genres more nicely.
+    # Above print() and below space() functions are only to display those genres more nicely.
 
     def space(left):
         left2 = left.copy()
@@ -257,7 +303,7 @@ def reading_details():
                       6, 11, 35, 13, 17, 18, 38, 19, 20, 39, 40, 21, 23, 29, 31, 32, 43, 15, 42, 25, 27]
     for x in range(0, len(ch_genre_a)):
         ch_genre_a[x] = x
-    # DON'T CHANGE THESE VALUES ABOVE. MyAnimeList has very weird genre numbering.
+    # DON'T CHANGE THESE VALUES ABOVE. MyAnimeList has very weird genre numbering, not following the alphabetic order.
     str_ch_genre_a = ch_genre_a.copy()
     str_ch_genre_a = map(str, str_ch_genre_a)
     genre = input_c(list(str_ch_genre_a))
@@ -266,7 +312,7 @@ def reading_details():
     elif int(genre) in ch_genre_a:
         genre = int(genre) - 1
         genre = ch_genre_b[ch_genre_a.index(int(genre))]
-    return m_type, m_status, genre, pref, genre
+    return m_type, m_status, genre, pref, genre, media_type
 
 
 def requesting():
@@ -274,8 +320,7 @@ def requesting():
 
     # genre_s is passing the json from jikan through the genres and airing/... status.
     # Yes, I tried combining the json files but in the end it just added a few more lines of code.
-    def genre_s(query, mtype, c_page, shuffle_title, shuffle_url, status):
-        parsed_list = []
+    def genre_s(query, mtype, c_page, shuffle_title, shuffle_url, status, media_type):
         item_list = []
         if m_type == "animelist":
             if query != "n":
@@ -308,8 +353,14 @@ def requesting():
                     if item_list[status_index]["watching_status"] == int(status):
                         status_list.append(status_check)
                 item_list = status_list.copy()
+            if media_type != "":
+                media_list = []
+                for media_type_check in item_list:
+                    media_type_index = item_list.index(media_type_check)
+                    if item_list[media_type_index]["type"] == media_type:
+                        media_list.append(media_type_check)
+                item_list = media_list.copy()
             if not item_list:
-                empty = ""
                 print("[INF] Content of page {} did not meet your filters.".format(c_page))
                 return shuffle_title, shuffle_url
             for item in item_list:
@@ -348,8 +399,14 @@ def requesting():
                     if item_list[status_index]["reading_status"] == int(status):
                         status_list.append(status_check)
                 item_list = status_list.copy()
+            if media_type != "":
+                media_list = []
+                for media_type_check in item_list:
+                    media_type_index = item_list.index(media_type_check)
+                    if item_list[media_type_index]["type"] == media_type:
+                        media_list.append(media_type_check)
+                item_list = media_list.copy()
             if not item_list:
-                empty = ""
                 print("[INF] Content of page {} did not meet your filters.".format(c_page))
                 return shuffle_title, shuffle_url
             for item in item_list:
@@ -357,16 +414,17 @@ def requesting():
                 shuffle_title.append(item_list[item_index]['title'])
                 shuffle_url.append(item_list[item_index]['url'])
             return shuffle_title, shuffle_url
-    # From here on requesting() actually starts. The above are just functions, called later on.
-    m_type, m_status, genre, pref, genre = reading_details()
+    # From here on requesting() actually starts. The above function is to filter the list later on.
+    m_type, m_status, genre, pref, genre, media_type = reading_details()
     if username == "":
-        m_type, m_status, genre, pref, genre = reading_details()
+        m_type, m_status, genre, pref, genre, media_type = reading_details()
     if m_type == "animelist":
         type_short = "anime"
     elif m_type == "mangalist":
         type_short = "manga"
     else:
         print("Error occurred. Please don't contact the dev.\nHe's busy watching twitch.")
+        return()
     x = 1
     if cache_check == "true" and os.path.isfile(r"./pylist-cache/{}-{}-p1.json".format(username, m_type)):
         with open("./pylist-cache/{}-{}-p1.json".format(username, m_type)) as json_file:
@@ -376,6 +434,8 @@ def requesting():
         sleeeping = 0
     else:
         req_status = True
+        sleeeping = 6
+        print("")
     print("Loading page:", x)
     # Change below domain, if you are having connection issues.
     c_url = str("https://api.jikan.moe/v3/user/{}/{}".format(username, m_type))
@@ -388,7 +448,6 @@ def requesting():
     while req_status:
         try:
             request = requests.get(c_url, timeout=6)
-            sleeeping = 6
         except Timeout:
             print("API didn't respond. Trying again in 4 seconds...")
             time.sleep(4)
@@ -403,15 +462,15 @@ def requesting():
     shuffle_url = []
     c_page = 1
     if length < 145:
-        print("Your filters don't seem to match any content.")
+        print("Your list doesn't seem to have content.")
         return
     elif '"status":400,' in json_body:
         print("That username doesn't exist.")
         return
     elif "BadResponseException" in str(json_body):
-        print("The connection to MyAnimeList failed.")
+        print("Jikan failed to connect to MyAnimeList. MyAnimeList may be down, unavailable or refuses to connect.")
         return
-    shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url, m_status)
+    shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url, m_status, media_type)
     c_page = c_page + 1
     while length > 150:
         if cache_check == "true" and os.path.isfile(r"./pylist-cache/{}-{}-p{}.json".format(username, m_type, c_page)):
@@ -442,7 +501,7 @@ def requesting():
         if "BadResponseException" in str(json_body):
             print("The connection to MyAnimeList failed.")
             return
-        shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url, m_status)
+        shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url, m_status, media_type)
         c_url = c_url + n_url
         c_page = c_page + 1
         length = len(str(json_body))
@@ -462,13 +521,11 @@ def requesting():
 
 
 def main():
+    # No, srsly. Their servers time out really easily.
     print("This script uses the unofficial Jikan API.\n"
           "Please don't spam requests.\n")
-    # No, srsly. Their servers time out really easily.
     op()
-    # cache = caching()
-    # requesting(cache)
-    print("\npython script finished.")
+    print("\nscript finished.")
 
 
 main()
