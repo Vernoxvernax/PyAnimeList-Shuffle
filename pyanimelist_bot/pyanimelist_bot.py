@@ -8,7 +8,9 @@ import requests
 from requests import Timeout
 import random
 import threading            # to handle multiple requests at the same time
-from telegram import Update, ReplyKeyboardRemove, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, ReplyKeyboardRemove, InlineKeyboardButton, InlineKeyboardMarkup, \
+                     ParseMode
+import telegram.utils.helpers
 from telegram.ext import CallbackContext, CommandHandler, Updater, \
                          MessageHandler, Filters, ConversationHandler, \
                          CallbackQueryHandler
@@ -267,59 +269,59 @@ def release_status_end(update: Update, context: CallbackContext) -> None:
     ReplyKeyboardRemove()
     if listtype == "Anime":
         genre_reply = "```\n" \
-                      "Genres                 Themes" \
-                      "\n> Action (1)           | > Cars (23)" \
-                      "\n> Adventure (2)        | > Demons (24)" \
-                      "\n> Avant Garde (3)      | > Game (25)" \
-                      "\n> Award Winning (4)    | > Harem (26)" \
-                      "\n> Boys Love (5)        | > Historical (27)" \
-                      "\n> Comedy (6)           | > Martial Arts (28)" \
-                      "\n> Drama (7)            | > Mecha (29)" \
-                      "\n> Fantasy (8)          | > Military (30)" \
-                      "\n> Girls Love (9)       | > Music (31)" \
-                      "\n> Gourmet (10)         | > Parody (32)" \
-                      "\n> Horror (11)          | > Police (33)" \
-                      "\n> Mystery (12)         | > Psychological (34)" \
-                      "\n> Romance (13)         | > Samurai (35)" \
-                      "\n> Sci-Fi (14)          | > School (36)" \
-                      "\n> Slice of Life (15)   | > Space (37)" \
-                      "\n> Sports (16)          | > Super Power (38)" \
-                      "\n> Supernatural (17)    | > Vampire (39)" \
-                      "\n> Suspense (18)        | > Demographics (40)" \
-                      "\n> Work Life (19)       | > Josei" \
-                      "\nExplicit Genres        | > Kids (41)" \
-                      "\n> Ecchi (20)           | > Seinen (42)" \
-                      "\n> Erotica (21)         | > Shoujo (43)" \
-                      "\n> Hentai (22)          | > Shounen (44)" \
+                      "Genres                    Themes" \
+                      "\n> Action (1)        | > Cars (23)" \
+                      "\n> Adventure (2)     | > Demons (24)" \
+                      "\n> Avant Garde (3)   | > Game (25)" \
+                      "\n> Award Winning (4) | > Harem (26)" \
+                      "\n> Boys Love (5)     | > Historical (27)" \
+                      "\n> Comedy (6)        | > Martial Arts (28)" \
+                      "\n> Drama (7)         | > Mecha (29)" \
+                      "\n> Fantasy (8)       | > Military (30)" \
+                      "\n> Girls Love (9)    | > Music (31)" \
+                      "\n> Gourmet (10)      | > Parody (32)" \
+                      "\n> Horror (11)       | > Police (33)" \
+                      "\n> Mystery (12)      | > Psychological (34)" \
+                      "\n> Romance (13)      | > Samurai (35)" \
+                      "\n> Sci-Fi (14)       | > School (36)" \
+                      "\n> Slice of Life (15)| > Space (37)" \
+                      "\n> Sports (16)       | > Super Power (38)" \
+                      "\n> Supernatural (17) | > Vampire (39)" \
+                      "\n> Suspense (18)     | > Demographics (40)" \
+                      "\n> Work Life (19)    | > Josei" \
+                      "\nExplicit Genres     | > Kids (41)" \
+                      "\n> Ecchi (20)        | > Seinen (42)" \
+                      "\n> Erotica (21)      | > Shoujo (43)" \
+                      "\n> Hentai (22)       | > Shounen (44)" \
                       "\n\nNo genre (0)```"
     else:
         genre_reply = "```\n" \
-                      "Genres                 Themes" \
-                      "\n> Action (1)         | > Cars (23)" \
-                      "\n> Adventure (2)      | > Demons (24)" \
-                      "\n> Avant Garde (3)    | > Game (25)" \
-                      "\n> Award Winning (4)  | > Harem (26)" \
-                      "\n> Boys Love (5)      | > Historical (27)" \
-                      "\n> Comedy (6)         | > Martial Arts (28)" \
-                      "\n> Drama (7)          | > Mecha (29)" \
-                      "\n> Fantasy (8)        | > Military (30)" \
-                      "\n> Girls Love (9)     | > Music (31)" \
-                      "\n> Gourmet (10)       | > Parody (32)" \
-                      "\n> Horror (11)        | > Police (33)" \
-                      "\n> Mystery (12)       | > Psychological (34)" \
-                      "\n> Romance (13)       | > Samurai (35)" \
-                      "\n> Sci-Fi (14)        | > School (36)" \
-                      "\n> Slice of Life (15) | > Space (37)" \
-                      "\n> Sports (16)        | > Super Power (38)" \
-                      "\n> Supernatural (17)  | > Vampire (39)" \
-                      "\n> Suspense (18)      | > Demographics (40)" \
-                      "\n> Work Life (19)     | > Josei" \
-                      "\nExplicit Genres      | > Kids (41)" \
-                      "\n> Ecchi (20)         | > Seinen (42)" \
-                      "\n> Erotica (21)       | > Shoujo (43)" \
-                      "\n> Hentai (22)        | > Shounen (44)" \
+                      "Genres                    Themes" \
+                      "\n> Action (1)        | > Cars (23)" \
+                      "\n> Adventure (2)     | > Demons (24)" \
+                      "\n> Avant Garde (3)   | > Game (25)" \
+                      "\n> Award Winning (4) | > Harem (26)" \
+                      "\n> Boys Love (5)     | > Historical (27)" \
+                      "\n> Comedy (6)        | > Martial Arts (28)" \
+                      "\n> Drama (7)         | > Mecha (29)" \
+                      "\n> Fantasy (8)       | > Military (30)" \
+                      "\n> Girls Love (9)    | > Music (31)" \
+                      "\n> Gourmet (10)      | > Parody (32)" \
+                      "\n> Horror (11)       | > Police (33)" \
+                      "\n> Mystery (12)      | > Psychological (34)" \
+                      "\n> Romance (13)      | > Samurai (35)" \
+                      "\n> Sci-Fi (14)       | > School (36)" \
+                      "\n> Slice of Life (15)| > Space (37)" \
+                      "\n> Sports (16)       | > Super Power (38)" \
+                      "\n> Supernatural (17) | > Vampire (39)" \
+                      "\n> Suspense (18)     | > Demographics (40)" \
+                      "\n> Work Life (19)    | > Josei" \
+                      "\nExplicit Genres     | > Kids (41)" \
+                      "\n> Ecchi (20)        | > Seinen (42)" \
+                      "\n> Erotica (21)      | > Shoujo (43)" \
+                      "\n> Hentai (22)       | > Shounen (44)" \
                       "\nManga exclusive tags:" \
-                      "\n> Doujinshi (45)     | > Gender Bender (46)" \
+                      "\n> Doujinshi (45)    | > Gender Bender (46)" \
                       "\n\nNo genre (0)```"
     message = "Which of the following genres do you want to prioritize?:\n{}".format(genre_reply)
     update.callback_query.message.edit_text(message, parse_mode="Markdown")
@@ -344,32 +346,18 @@ def cache_check(update: Update, context: CallbackContext):
         update.message.reply_text("[INF] No cache found for {}.".format(username))
         using_cache = "No"
         message = "[INF] Joined queue."
-        try:
-            update.message.reply_text(message)
-        except:
-            update.callback_query.message.edit_text(message)
+        update.message.reply_text(message)
         thread = threading.Thread(target=request_thread, args=(update, context))
         thread.start()
         thread.join()
         return stop
 
 
-def custom_message(update: Update, context: CallbackContext, x, y):
-    if y == "a":
-        update.callback_query.message.edit_text(x)
-    else:
-        update.message.reply_text(x)
-    return
-
-
 def processing(update: Update, context: CallbackContext):
     global using_cache
     using_cache = update.callback_query.data
     message = "[INF] Joined queue."
-    try:
-        update.message.reply_text(message)
-    except:
-        update.callback_query.message.edit_text(message)
+    update.callback_query.message.edit_text(message)
     thread = threading.Thread(target=request_thread, args=(update, context))
     thread.start()
     thread.join()
@@ -515,12 +503,16 @@ def request_thread(update: Update, context: CallbackContext):
         ch_genre_a = [0] * 44
         ch_genre_b = [1, 2, 5, 46, 28, 4, 8, 10, 26, 47, 14, 7, 22, 24, 36, 30, 37, 41, 48, 9, 49, 12, 3,
                       6, 11, 35, 13, 17, 18, 38, 19, 20, 39, 40, 21, 23, 29, 31, 32, 43, 15, 42, 25, 27]
+    for x in range(0, len(ch_genre_a)):
+        ch_genre_a[x] = x
     if genre == "0":
         genre = str("n")
     elif int(genre) in ch_genre_a:
         genre = int(genre) - 1
         genre = ch_genre_b[ch_genre_a.index(int(genre))]
     media_type = mediatype
+    if media_type == "TV-Show":
+        media_type = "TV"
     if media_type == "All":
         media_type = ""
     message = "[INF] Shuffling..."
@@ -593,30 +585,28 @@ def request_thread(update: Update, context: CallbackContext):
         if "BadResponseException" in str(json_body):
             print("The connection to MyAnimeList failed.")
             return
-        shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url, m_status, media_type)
+        shuffle_title, shuffle_url = genre_s(genre, type_short, c_page,
+                                             shuffle_title, shuffle_url, m_status, media_type)
         c_url = c_url + n_url
         c_page = c_page + 1
         length = len(str(json_body))
     if len(shuffle_title) == 0:
-        message = "     Nothing out of your list matches configured search requirements!"
-        try:
-            update.message.reply_text(message, parse_mode="Markdown")
-        except:
-            update.callback_query.message.edit_text(message, parse_mode="Markdown")
+        message = "     Nothing out of your list matches configured search requirements."
+        update.callback_query.message.edit_text(message)
         return stop
     rnd_pick = shuffle_title[random.randrange(len(shuffle_title))]
     if len(shuffle_title) == 1:
         message = "Only one match has been found:"\
-                  "\n     {}" \
-                  "\n     {}".format(rnd_pick, shuffle_url[shuffle_title.index(rnd_pick)])
+                  "\n     [{} \- MyAnimeList\.net]({})".\
+            format(telegram.utils.helpers.escape_markdown(rnd_pick, version=2),
+                   telegram.utils.helpers.escape_markdown(shuffle_url[shuffle_title.index(rnd_pick)]), version=2)
     elif len(shuffle_title) > 1:
         message = "Out of: {} titles, the following was picked:" \
-                  "\n     {}" \
-                  "\n     {}".format(len(shuffle_title), rnd_pick, shuffle_url[shuffle_title.index(rnd_pick)])
-    try:
-        update.message.reply_text(text=message, parse_mode="Markdown")
-    except:
-        update.callback_query.message.edit_text(message, parse_mode="Markdown")
+                  "\n     [{} \- MyAnimeList\.net]({})"\
+            .format(len(shuffle_title), telegram.utils.helpers.escape_markdown(rnd_pick, version=2),
+                    telegram.utils.helpers.escape_markdown(shuffle_url[shuffle_title.index(rnd_pick)]), version=2)
+    print(message)
+    update.callback_query.message.edit_text(message, parse_mode=ParseMode.MARKDOWN_V2)
     return stop
 
 
