@@ -344,7 +344,10 @@ def cache_check(update: Update, context: CallbackContext):
         update.message.reply_text("[INF] No cache found for {}.".format(username))
         using_cache = "No"
         message = "[INF] Joined queue."
-        custom_message(update, context, message, y="b")
+        try:
+            update.message.reply_text(message)
+        except:
+            update.callback_query.message.edit_text(message)
         thread = threading.Thread(target=request_thread, args=(update, context))
         thread.start()
         thread.join()
@@ -363,7 +366,10 @@ def processing(update: Update, context: CallbackContext):
     global using_cache
     using_cache = update.callback_query.data
     message = "[INF] Joined queue."
-    custom_message(update, context, message, y="a")
+    try:
+        update.message.reply_text(message)
+    except:
+        update.callback_query.message.edit_text(message)
     thread = threading.Thread(target=request_thread, args=(update, context))
     thread.start()
     thread.join()
