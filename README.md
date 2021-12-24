@@ -4,6 +4,10 @@
 
 This projects heavily relies on [Jikan](https://jikan.moe/) (v3), an unofficial MyAnimeList API.
 
+# Telegram Bot:
+### Merry Christmas: http://t.me/pyanimelist_bot
+###### doesn't need any setup on your side.
+
 ## Installation / Usage:
 ```
 $ git clone https://github.com/Vernoxvernax/PyAnimeList-Shuffle.git
