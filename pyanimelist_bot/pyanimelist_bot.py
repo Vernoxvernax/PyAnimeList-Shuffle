@@ -495,7 +495,7 @@ def request_thread(update: Update, context: CallbackContext):
         m_status_a = ["None", "Watching", "Completed", "On-Hold", "Dropped", "Plan to Watch"]
     else:
         m_status_a = ["None", "Reading", "Completed", "On-Hold", "Dropped", "Plan to Read"]
-    m_status_b = ["0", "1", "2", "3", "4", "5"]
+    m_status_b = ["1", "2", "3", "4", "5", "6"]
     if userstatus == "None":
         m_status = "n"
     elif userstatus in m_status_a:
@@ -617,7 +617,6 @@ def request_thread(update: Update, context: CallbackContext):
         update.message.reply_text(text=message, parse_mode="Markdown")
     except:
         update.callback_query.message.edit_text(message, parse_mode="Markdown")
-    time.sleep(4)
     return stop
 
 
