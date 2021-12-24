@@ -5,8 +5,8 @@
 This projects heavily relies on [Jikan](https://jikan.moe/) (v3), an unofficial MyAnimeList API.
 
 # Telegram Bot:
-### Merry Christmas: http://t.me/pyanimelist_bot
-###### doesn't need any setup on your side.
+### Merry Christmas: https://t.me/pyanimelist_bot
+###### Doesn't need any setup on your side, just text `/start`.
 
 ## Installation / Usage:
 ```
