@@ -25,7 +25,7 @@ The Jikan API also provides only very little possibilities to filter the request
 Due to recent changes (to my script) it is now possible to cache your _anime_-list locally, if activated.
 
 ## To-Do:
-* Look into Telegram API (this would be sick, holy fuck)
+* Look into discord bot api
 * Max/Min amount of EPs/Chatpers
 * More detailed output (genre, score, EP count)
 
