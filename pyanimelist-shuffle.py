@@ -319,7 +319,7 @@ def requesting():
     global cache_check
 
     # genre_s is passing the json from jikan through the genres and airing/... status.
-    # Yes, I tried combining the json files but in the end it just added a few more lines of code.
+    # Yes, I tried combining the json files but in the end it just added a few' more lines of code.
     def genre_s(query, mtype, c_page, shuffle_title, shuffle_url, status, media_type):
         item_list = []
         if m_type == "animelist":
@@ -470,6 +470,8 @@ def requesting():
     elif "BadResponseException" in str(json_body):
         print("Jikan failed to connect to MyAnimeList. MyAnimeList may be down, unavailable or refuses to connect.")
         return
+    print(genre, type_short, c_page, shuffle_title, shuffle_url, m_status, media_type)
+    input()
     shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url, m_status, media_type)
     c_page = c_page + 1
     while length > 150:
