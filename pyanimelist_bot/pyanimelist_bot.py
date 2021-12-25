@@ -595,11 +595,11 @@ def request_thread(update: Update, context: CallbackContext):
     if len(shuffle_title) == 0:
         message = "     Nothing out of your list matches configured search requirements."
         if using_cache == "No" and cache_exists:
-            update.callback_query.message.edit_text(message, parse_mode=ParseMode.MARKDOWN_V2)
+            update.callback_query.message.edit_text(message)
         elif using_cache == "No" and not cache_exists:
-            update.message.reply_text(message, parse_mode=ParseMode.MARKDOWN_V2)
+            update.message.reply_text(message)
         else:
-            update.callback_query.message.edit_text(message, parse_mode=ParseMode.MARKDOWN_V2)
+            update.callback_query.message.edit_text(message)
     rnd_pick = shuffle_title[random.randrange(len(shuffle_title))]
     if len(shuffle_title) == 1:
         message = "Only one match has been found:"\
