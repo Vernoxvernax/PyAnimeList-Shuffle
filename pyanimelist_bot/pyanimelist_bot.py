@@ -341,10 +341,12 @@ def cache_check(update: Update, context: CallbackContext):
         question_kb = InlineKeyboardMarkup(question_reply)
         update.message.reply_text("[INF] Cache found for {}.\nDo you want to use it?".format(username),
                                   reply_markup=question_kb)
+        cache_exists = True
         return CACHE
     else:
         update.message.reply_text("[INF] No cache found for {}.".format(username))
         using_cache = "No"
+        cache_exists = False
         message = "[INF] Joined queue."
         update.message.reply_text(message)
         thread = threading.Thread(target=request_thread, args=(update, context))
@@ -609,7 +611,10 @@ def request_thread(update: Update, context: CallbackContext):
             .format(len(shuffle_title), telegram.utils.helpers.escape_markdown(rnd_pick, version=2),
                     telegram.utils.helpers.escape_markdown(shuffle_url[shuffle_title.index(rnd_pick)]), version=2)
     print(message)
-    if using_cache == "No":
+
+    if using_cache == "No" and cache_exists:
+        update.callback_query.message.edit_text(message, parse_mode=ParseMode.MARKDOWN_V2)
+    elif using_cache == "No" and not cache_exists:
         update.message.reply_text(message, parse_mode=ParseMode.MARKDOWN_V2)
     else:
         update.callback_query.message.edit_text(message, parse_mode=ParseMode.MARKDOWN_V2)
