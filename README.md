@@ -4,8 +4,8 @@
 
 This projects heavily relies on [Jikan](https://jikan.moe/) (v3), an unofficial MyAnimeList API.
 
-# Telegram Bot:
-### Merry Christmas: https://t.me/pyanimelist_bot
+## Telegram Bot:
+#### Merry Christmas: https://t.me/pyanimelist_bot
 ###### Doesn't need any setup on your side, just text `/start`.
 
 ## Installation / Usage:
@@ -26,7 +26,7 @@ Due to recent changes (to my script) it is now possible to cache your _anime_-li
 
 ## To-Do:
 * Look into discord bot api
-* Max/Min amount of EPs/Chatpers
+* Max/Min amount of EPs/Chapters
 * More detailed output (genre, score, EP count)
 
 ## Demonstration:
