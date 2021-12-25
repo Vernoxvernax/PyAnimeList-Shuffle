@@ -592,7 +592,10 @@ def request_thread(update: Update, context: CallbackContext):
         length = len(str(json_body))
     if len(shuffle_title) == 0:
         message = "     Nothing out of your list matches configured search requirements."
-        update.callback_query.message.edit_text(message)
+        if using_cache == "Yes":
+            update.message.reply_text(message, parse_mode=ParseMode.MARKDOWN_V2)
+        else:
+            update.callback_query.message.edit_text(message, parse_mode=ParseMode.MARKDOWN_V2)
         return stop
     rnd_pick = shuffle_title[random.randrange(len(shuffle_title))]
     if len(shuffle_title) == 1:
@@ -606,7 +609,10 @@ def request_thread(update: Update, context: CallbackContext):
             .format(len(shuffle_title), telegram.utils.helpers.escape_markdown(rnd_pick, version=2),
                     telegram.utils.helpers.escape_markdown(shuffle_url[shuffle_title.index(rnd_pick)]), version=2)
     print(message)
-    update.callback_query.message.edit_text(message, parse_mode=ParseMode.MARKDOWN_V2)
+    if using_cache == "Yes":
+        update.message.reply_text(message, parse_mode=ParseMode.MARKDOWN_V2)
+    else:
+        update.callback_query.message.edit_text(message, parse_mode=ParseMode.MARKDOWN_V2)
     return stop
 
 
