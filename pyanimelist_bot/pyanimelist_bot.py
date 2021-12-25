@@ -269,61 +269,61 @@ def release_status_end(update: Update, context: CallbackContext) -> None:
     ReplyKeyboardRemove()
     if listtype == "Anime":
         genre_reply = "```\n" \
-                      "Genres                    Themes" \
-                      "\n> Action (1)        | > Cars (23)" \
-                      "\n> Adventure (2)     | > Demons (24)" \
-                      "\n> Avant Garde (3)   | > Game (25)" \
-                      "\n> Award Winning (4) | > Harem (26)" \
-                      "\n> Boys Love (5)     | > Historical (27)" \
-                      "\n> Comedy (6)        | > Martial Arts (28)" \
-                      "\n> Drama (7)         | > Mecha (29)" \
-                      "\n> Fantasy (8)       | > Military (30)" \
-                      "\n> Girls Love (9)    | > Music (31)" \
-                      "\n> Gourmet (10)      | > Parody (32)" \
-                      "\n> Horror (11)       | > Police (33)" \
-                      "\n> Mystery (12)      | > Psychological (34)" \
-                      "\n> Romance (13)      | > Samurai (35)" \
-                      "\n> Sci-Fi (14)       | > School (36)" \
-                      "\n> Slice of Life (15)| > Space (37)" \
-                      "\n> Sports (16)       | > Super Power (38)" \
-                      "\n> Supernatural (17) | > Vampire (39)" \
-                      "\n> Suspense (18)     | > Demographics (40)" \
-                      "\n> Work Life (19)    | > Josei" \
-                      "\nExplicit Genres     | > Kids (41)" \
-                      "\n> Ecchi (20)        | > Seinen (42)" \
-                      "\n> Erotica (21)      | > Shoujo (43)" \
-                      "\n> Hentai (22)       | > Shounen (44)" \
+                      ".Genres.            .Themes." \
+                      "\nAction (1)        | Cars (23)" \
+                      "\nAdventure (2)     | Demons (24)" \
+                      "\nAvant Garde (3)   | Game (25)" \
+                      "\nAward Winning (4) | Harem (26)" \
+                      "\nBoys Love (5)     | Historical (27)" \
+                      "\nComedy (6)        | Martial Arts (28)" \
+                      "\nDrama (7)         | Mecha (29)" \
+                      "\nFantasy (8)       | Military (30)" \
+                      "\nGirls Love (9)    | Music (31)" \
+                      "\nGourmet (10)      | Parody (32)" \
+                      "\nHorror (11)       | Police (33)" \
+                      "\nMystery (12)      | Psychological (34)" \
+                      "\nRomance (13)      | Samurai (35)" \
+                      "\nSci-Fi (14)       | School (36)" \
+                      "\nSlice of Life (15)| Space (37)" \
+                      "\nSports (16)       | Super Power (38)" \
+                      "\nSupernatural (17) | Vampire (39)" \
+                      "\nSuspense (18)     | Demographics (40)" \
+                      "\nWork Life (19)    | Josei" \
+                      "\n.Explicit Genres. | Kids (41)" \
+                      "\nEcchi (20)        | Seinen (42)" \
+                      "\nErotica (21)      | Shoujo (43)" \
+                      "\nHentai (22)       | Shounen (44)" \
                       "\n\nNo genre (0)```"
     else:
         genre_reply = "```\n" \
-                      "Genres                    Themes" \
-                      "\n> Action (1)        | > Cars (23)" \
-                      "\n> Adventure (2)     | > Demons (24)" \
-                      "\n> Avant Garde (3)   | > Game (25)" \
-                      "\n> Award Winning (4) | > Harem (26)" \
-                      "\n> Boys Love (5)     | > Historical (27)" \
-                      "\n> Comedy (6)        | > Martial Arts (28)" \
-                      "\n> Drama (7)         | > Mecha (29)" \
-                      "\n> Fantasy (8)       | > Military (30)" \
-                      "\n> Girls Love (9)    | > Music (31)" \
-                      "\n> Gourmet (10)      | > Parody (32)" \
-                      "\n> Horror (11)       | > Police (33)" \
-                      "\n> Mystery (12)      | > Psychological (34)" \
-                      "\n> Romance (13)      | > Samurai (35)" \
-                      "\n> Sci-Fi (14)       | > School (36)" \
-                      "\n> Slice of Life (15)| > Space (37)" \
-                      "\n> Sports (16)       | > Super Power (38)" \
-                      "\n> Supernatural (17) | > Vampire (39)" \
-                      "\n> Suspense (18)     | > Demographics (40)" \
-                      "\n> Work Life (19)    | > Josei" \
-                      "\nExplicit Genres     | > Kids (41)" \
-                      "\n> Ecchi (20)        | > Seinen (42)" \
-                      "\n> Erotica (21)      | > Shoujo (43)" \
-                      "\n> Hentai (22)       | > Shounen (44)" \
-                      "\nManga exclusive tags:" \
-                      "\n> Doujinshi (45)    | > Gender Bender (46)" \
+                      ".Genres.            .Themes." \
+                      "\nAction (1)        | Cars (23)" \
+                      "\nAdventure (2)     | Demons (24)" \
+                      "\nAvant Garde (3)   | Game (25)" \
+                      "\nAward Winning (4) | Harem (26)" \
+                      "\nBoys Love (5)     | Historical (27)" \
+                      "\nComedy (6)        | Martial Arts (28)" \
+                      "\nDrama (7)         | Mecha (29)" \
+                      "\nFantasy (8)       | Military (30)" \
+                      "\nGirls Love (9)    | Music (31)" \
+                      "\nGourmet (10)      | Parody (32)" \
+                      "\nHorror (11)       | Police (33)" \
+                      "\nMystery (12)      | Psychological (34)" \
+                      "\nRomance (13)      | Samurai (35)" \
+                      "\nSci-Fi (14)       | School (36)" \
+                      "\nSlice of Life (15)| Space (37)" \
+                      "\nSports (16)       | Super Power (38)" \
+                      "\nSupernatural (17) | Vampire (39)" \
+                      "\nSuspense (18)     | Demographics (40)" \
+                      "\nWork Life (19)    | Josei" \
+                      "\n.Explicit Genres. | Kids (41)" \
+                      "\nEcchi (20)        | Seinen (42)" \
+                      "\nErotica (21)      | Shoujo (43)" \
+                      "\nHentai (22)       | Shounen (44)" \
+                      "\n.Manga exclusive tags:." \
+                      "\nDoujinshi (45)    | Gender Bender (46)" \
                       "\n\nNo genre (0)```"
-    message = "Which of the following genres do you want to prioritize?:\n{}".format(genre_reply)
+    message = "Type the number of the genre, you want to prioritize:\n{}".format(genre_reply)
     update.callback_query.message.edit_text(message, parse_mode="Markdown")
     return GENRE
 
