@@ -286,7 +286,7 @@ def release_status_end(update: Update, context: CallbackContext) -> None:
                   "\nSlice of Life (15)| Space (37)" \
                   "\nSports (16)       | Super Power (38)" \
                   "\nSupernatural (17) | Vampire (39)" \
-                  "\nSuspense (18)     .Demographics" \
+                  "\nSuspense (18)     |.Demographics." \
                   "\nWork Life (19)    | Josei (40)" \
                   "\n.Explicit Genres. | Kids (41)" \
                   "\nEcchi (20)        | Seinen (42)" \
