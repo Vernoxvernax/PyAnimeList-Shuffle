@@ -21,7 +21,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-USERNAME, LISTTYPE, MEDIATYPE, USERSTATUS, RELEASESTATUS, GENRE, CACHE = range(7)
+USERNAME, LISTTYPE, MEDIATYPE, USERSTATUS, RELEASESTATUS, GENRE, CACHE, SCORE, MIN, MAX, V_MIN, V_MAX = range(12)
 
 
 def reading_config_file():
@@ -75,6 +75,13 @@ def adding_handler():
             RELEASESTATUS: [
                 CallbackQueryHandler(release_status_end, pattern='^(No|Airing|Publishing|Finished'
                                                                  '|Not yet Aired|Not yet Published)$')
+            ],
+            SCORE: [
+                CallbackQueryHandler(score_end, pattern='^[0-9]+$')
+            ],
+            MIN: [
+                CallbackQueryHandler(min_end, pattern='^(Yes|No)$'),
+                MessageHandler(Filters.regex('^[0-9]+$'), min_end)
             ],
             GENRE: [
                 MessageHandler(Filters.regex('^[0-9]+$'), cache_check)
@@ -266,7 +273,56 @@ def userstatus_end(update: Update, context: CallbackContext) -> None:
 def release_status_end(update: Update, context: CallbackContext) -> None:
     global release_status
     release_status = update.callback_query.data
-    ReplyKeyboardRemove()
+    score_reply = [
+        [
+            InlineKeyboardButton("10", callback_data="10"),
+            InlineKeyboardButton("9", callback_data="9"),
+            InlineKeyboardButton("8", callback_data="8")
+        ],
+        [
+            InlineKeyboardButton("7", callback_data="7"),
+            InlineKeyboardButton("6", callback_data="6"),
+            InlineKeyboardButton("5", callback_data="5")
+        ],
+        [
+            InlineKeyboardButton("4", callback_data="4"),
+            InlineKeyboardButton("3", callback_data="3"),
+            InlineKeyboardButton("2", callback_data="2")
+        ],
+        [
+            InlineKeyboardButton("1", callback_data="1"),
+            InlineKeyboardButton("No", callback_data="0")
+        ]
+    ]
+    message = "Do you want to filter after YOUR score?:"
+    score_kb = InlineKeyboardMarkup(score_reply, one_time_keyboard=True)
+    update.callback_query.message.edit_text(message, reply_markup=score_kb)
+    return SCORE
+
+
+def score_end(update: Update, context: CallbackContext):
+    global score, counter
+    counter = 0
+    score = update.callback_query.data
+    question_reply = [
+        [
+            InlineKeyboardButton("Yes", callback_data="Yes"),
+            InlineKeyboardButton("No", callback_data="No")
+        ]
+    ]
+    question_kb = InlineKeyboardMarkup(question_reply)
+    if listtype == "Anime":
+        temp_score_help = "episodes"
+    else:
+        temp_score_help = "chapters & volumes"
+    message = "Do you want to set min/max amount of {}?\n" \
+              "You can skip individual parts by sending 0.".format(temp_score_help)
+    update.callback_query.message.edit_text(message, reply_markup=question_kb)
+    return MIN
+
+
+def min_end(update: Update, context: CallbackContext):
+    global counter, maximum, minimum
     genre_reply = "```\n" \
                   ".Genres.            .Themes." \
                   "\nAction (1)        | Cars (23)" \
@@ -286,7 +342,7 @@ def release_status_end(update: Update, context: CallbackContext) -> None:
                   "\nSlice of Life (15)| Space (37)" \
                   "\nSports (16)       | Super Power (38)" \
                   "\nSupernatural (17) | Vampire (39)" \
-                  "\nSuspense (18)     |.Demographics." \
+                  "\nSuspense (18)     | .Demographics." \
                   "\nWork Life (19)    | Josei (40)" \
                   "\n.Explicit Genres. | Kids (41)" \
                   "\nEcchi (20)        | Seinen (42)" \
@@ -296,11 +352,69 @@ def release_status_end(update: Update, context: CallbackContext) -> None:
         genre_reply = genre_reply + "```\n\nNo genre (0)```"
     else:
         genre_reply = genre_reply + "```\n\n.Manga exclusive tags:." \
-                      "\nDoujinshi (45)    | Gender Bender (46)" \
-                      "\n\nNo genre (0)```"
-    message = "Type the number of the genre, you want to prioritize:\n{}".format(genre_reply)
-    update.callback_query.message.edit_text(message, parse_mode="Markdown")
-    return GENRE
+                                    "\nDoujinshi (45)    | Gender Bender (46)" \
+                                    "\n\nNo genre (0)```"
+    genre_message = "Type the number of the genre, you want to prioritize:\n{}".format(genre_reply)
+    if counter == 0:
+        try:
+            min_answer = update.callback_query.data
+        except:
+            min_answer = update.message.text
+    else:
+        min_answer = update.message.text
+    counter_check_a = [1, 3, 69, 71]
+    counter_check_b = [2, 4, 70, 72]
+    if counter == 0 or counter == 69:
+        minimum = []
+        maximum = []
+    if min_answer == "No":
+        maximum = minimum = [0, 0]
+        update.callback_query.message.edit_text(genre_message, parse_mode="Markdown")
+        return GENRE
+    elif counter in counter_check_a:
+        minimum.append(min_answer)
+    elif counter in counter_check_b:
+        maximum.append(min_answer)
+    counter = counter + 1
+    if counter == 3 and listtype == "Anime" or counter == 71 and listtype == "Anime":
+        if int(minimum[0]) > int(maximum[0]) != 0:
+            message = "It seems like you accidentally swapped the min and max values. " \
+                      "Make sure minimum is smaller than maximum. :)\n" \
+                      "Please specify the minimum amount of episodes:"
+            update.message.reply_text(message, parse_mode="Markdown")
+            counter = 69
+            return MIN
+        update.message.reply_text(genre_message, parse_mode="Markdown")
+        return GENRE
+    elif counter == 5 and listtype == "Manga" or counter == 73 and listtype == "Manga":
+        if int(minimum[0]) > int(maximum[0]) != 0 or int(minimum[1]) > int(maximum[1]) != 0:
+            message = "It seems like you accidentally swapped the min and max values. " \
+                      "Make sure minimum is smaller than maximum. :)\n" \
+                      "Please specify the minimum amount of chapters:"
+            update.message.reply_text(message, parse_mode="Markdown")
+            counter = 69
+            return MIN
+        update.message.reply_text(genre_message, parse_mode="Markdown")
+        return GENRE
+    if listtype == "Anime":
+        temp_score_help = "episodes"
+    else:
+        if counter < 3:
+            temp_score_help = "chapters"
+        else:
+            temp_score_help = "volumes"
+    if counter == 1 or counter == 3:
+        message = "Specify how many {} your {} should at least have. (minimum):".\
+            format(temp_score_help, listtype_short)
+    else:
+        message = "Specify the maximum amount of {}:". \
+            format(temp_score_help, listtype_short)
+    if counter == 1:
+        update.callback_query.message.edit_text(message)
+    else:
+        update.message.reply_text(message)
+    ReplyKeyboardRemove()
+    return MIN
 
 
 def cache_check(update: Update, context: CallbackContext):
@@ -357,7 +471,7 @@ def processing(update: Update, context: CallbackContext):
 
 
 def request_thread(update: Update, context: CallbackContext):
-    def genre_s(query, mtype, c_page, shuffle_title, shuffle_url, status, media_type):
+    def genre_s(query, mtype, c_page, shuffle_title, shuffle_url, status, media_type, minimum, maximum, score):
         item_list = []
         if m_type == "animelist":
             if query != "n":
@@ -397,6 +511,27 @@ def request_thread(update: Update, context: CallbackContext):
                     if item_list[media_type_index]["type"] == media_type:
                         media_list.append(media_type_check)
                 item_list = media_list.copy()
+            if score != 0:
+                score_list = []
+                for score_check in item_list:
+                    score_index = item_list.index(score_check)
+                    if item_list[score_index]["score"] == score:
+                        score_list.append(score_check)
+                item_list = score_list.copy()
+            if minimum[0] != 0:
+                mini_list = []
+                for mini_check in item_list:
+                    mini_index = item_list.index(mini_check)
+                    if item_list[mini_index]["total_episodes"] >= minimum[0]:
+                        mini_list.append(mini_check)
+                item_list = mini_list.copy()
+            if maximum[0] != 0:
+                max_list = []
+                for max_check in item_list:
+                    max_index = item_list.index(max_check)
+                    if item_list[max_index]["total_episodes"] <= maximum[0]:
+                        max_list.append(max_check)
+                item_list = max_list.copy()
             if not item_list:
                 print("[INF] Content of page {} did not meet your filters.".format(c_page))
                 return shuffle_title, shuffle_url
@@ -443,6 +578,41 @@ def request_thread(update: Update, context: CallbackContext):
                     if item_list[media_type_index]["type"] == media_type:
                         media_list.append(media_type_check)
                 item_list = media_list.copy()
+            if score != 0:
+                score_list = []
+                for score_check in item_list:
+                    score_index = item_list.index(score_check)
+                    if item_list[score_index]["score"] == score:
+                        score_list.append(score_check)
+                item_list = score_list.copy()
+            if minimum[0] != 0:
+                mini_list = []
+                for mini_check in item_list:
+                    mini_index = item_list.index(mini_check)
+                    if item_list[mini_index]["total_chapters"] >= minimum[0]:
+                        mini_list.append(mini_check)
+                item_list = mini_list.copy()
+            if minimum[1] != 0:
+                mini_list = []
+                for mini_check in item_list:
+                    mini_index = item_list.index(mini_check)
+                    if item_list[mini_index]["total_volumes"] >= minimum[1]:
+                        mini_list.append(mini_check)
+                item_list = mini_list.copy()
+            if maximum[0] != 0:
+                max_list = []
+                for max_check in item_list:
+                    max_index = item_list.index(max_check)
+                    if item_list[max_index]["total_chapters"] <= maximum[0]:
+                        max_list.append(max_check)
+                item_list = max_list.copy()
+            if maximum[1] != 0:
+                max_list = []
+                for max_check in item_list:
+                    max_index = item_list.index(max_check)
+                    if item_list[max_index]["total_volumes"] <= maximum[1]:
+                        max_list.append(max_check)
+                item_list = max_list.copy()
             if not item_list:
                 print("[INF] Content of page {} did not meet your filters.".format(c_page))
                 return shuffle_title, shuffle_url
@@ -456,6 +626,10 @@ def request_thread(update: Update, context: CallbackContext):
     pref = release_status
     m_type = listtype_long
     type_short = listtype_short
+    global score, minimum, maximum
+    score = int(score)
+    minimum = list(map(int, minimum))
+    maximum = list(map(int, maximum))
     if type_short == "anime":
         m_status_a = ["None", "Watching", "Completed", "On-Hold", "Dropped", "Plan to Watch"]
     else:
@@ -492,7 +666,7 @@ def request_thread(update: Update, context: CallbackContext):
         media_type = "TV"
     if media_type == "All":
         media_type = ""
-    message = "[INF] Shuffling..."
+    message = "[INF] Loading..."
     try:
         update.message.reply_text(message)
     except:
@@ -532,7 +706,8 @@ def request_thread(update: Update, context: CallbackContext):
     elif "BadResponseException" in str(json_body):
         print("Jikan failed to connect to MyAnimeList. MyAnimeList may be down, unavailable or refuses to connect.")
         return
-    shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url, m_status, media_type)
+    shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title,shuffle_url,
+                                         m_status, media_type, minimum, maximum, score)
     c_page = c_page + 1
     while length > 150:
         if using_cache == "Yes" and os.path.isfile(r"./cache/{}-{}-p{}.json".format(username, m_type, c_page)):
@@ -562,8 +737,8 @@ def request_thread(update: Update, context: CallbackContext):
         if "BadResponseException" in str(json_body):
             print("The connection to MyAnimeList failed.")
             return
-        shuffle_title, shuffle_url = genre_s(genre, type_short, c_page,
-                                             shuffle_title, shuffle_url, m_status, media_type)
+        shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url,
+                                             m_status, media_type, minimum, maximum, score)
         c_url = c_url + n_url
         c_page = c_page + 1
         length = len(str(json_body))
