@@ -21,7 +21,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-USERNAME, LISTTYPE, MEDIATYPE, USERSTATUS, RELEASESTATUS, GENRE, CACHE, SCORE, MIN, MAX, V_MIN, V_MAX = range(12)
+USERNAME, LISTTYPE, MEDIATYPE, USERSTATUS, RELEASESTATUS, GENRE, CACHE, SCORE, MIN = range(9)
 
 
 def reading_config_file():
@@ -87,7 +87,7 @@ def adding_handler():
                 MessageHandler(Filters.regex('^[0-9]+$'), cache_check)
             ],
             CACHE: [
-                CallbackQueryHandler(processing, pattern='^(No|Yes)$')
+                CallbackQueryHandler(cache_input, pattern='^(No|Yes)$')
             ]
         },
         fallbacks=[CommandHandler('stop', stop)]
@@ -133,15 +133,16 @@ def shuffle(update: Update, context: CallbackContext) -> None:
 
 
 def username_end(update: Update, context: CallbackContext) -> None:
-    global username
-    username = update.message.text
+    global username, username_input
+    username_input = update.message.text
+    username = username_input.lower()
     illegal_check = re.compile("[@_!#$%^&*()<>?/|}{~:]")
     if not (illegal_check.search(username) is None):
         update.message.reply_text("You username has illegal characters, please try again.")
         return USERNAME
     else:
-        update.message.reply_text("Username set to: {}".format(update.message.text))
-    # update.message.reply_text("Username set to: {}".format(username))
+        # update.message.reply_text("Username set to: {}".format(update.message.text))
+        update.message.reply_text("Username set to: {}".format(username_input))
     message = "Please choose the type of list you want to shuffle:"
     listtype_reply = [
         [
@@ -418,7 +419,7 @@ def min_end(update: Update, context: CallbackContext):
 
 
 def cache_check(update: Update, context: CallbackContext):
-    global cache_exists, user_genre, using_cache
+    global cache_exists, user_genre, using_cache, callbackhandler, queue_msg
     user_genre = update.message.text
     if os.path.isfile(r"./cache/{}-{}-p1.json".format(username, listtype_long)):
         question_reply = [
@@ -428,46 +429,34 @@ def cache_check(update: Update, context: CallbackContext):
             ]
         ]
         question_kb = InlineKeyboardMarkup(question_reply)
-        update.message.reply_text("[INF] Cache found for {}.\nDo you want to use it?".format(username),
+        update.message.reply_text("[INF] Cache found for {}.\nDo you want to use it?".format(username_input),
                                   reply_markup=question_kb)
         cache_exists = True
         return CACHE
     else:
-        update.message.reply_text("[INF] No cache found for {}.".format(username))
+        update.message.reply_text("[INF] No cache found for {}.".format(username_input))
         using_cache = "No"
         cache_exists = False
-        message = "[INF] Joined queue."
+        message = "[INF] Joining queue."
         update.message.reply_text(message)
+        callbackhandler = False
         thread = threading.Thread(target=request_thread, args=(update, context))
         thread.start()
         thread.join()
-        return stop
+        return ConversationHandler.END
 
 
-def processing(update: Update, context: CallbackContext):
-    global using_cache
+def cache_input(update: Update, context: CallbackContext):
+    global using_cache, callbackhandler
+    callbackhandler = True
     using_cache = update.callback_query.data
-    message = "[INF] Joined queue."
-    update.callback_query.message.edit_text(message)
+    message = "[INF] Joining queue."
+    if using_cache == "No":
+        update.callback_query.message.edit_text(message)
     thread = threading.Thread(target=request_thread, args=(update, context))
     thread.start()
     thread.join()
     return ConversationHandler.END
-    # request_thread(update, context)
-
-
-# def requesting(update: Update, context: CallbackContext):
-#     if using_cache == "No":
-#         message = "Not using cache"
-#     elif using_cache == "Yes":
-#         message = "Using cache"
-#     else:
-#         message = "doing stuff, not the right kind"
-#     custom_message(update, context, message)
-#     thread = threading.Thread(target=request_thread)
-#     thread.start()
-#     thread.join()
-#     return ConversationHandler.END
 
 
 def request_thread(update: Update, context: CallbackContext):
@@ -667,9 +656,9 @@ def request_thread(update: Update, context: CallbackContext):
     if media_type == "All":
         media_type = ""
     message = "[INF] Loading..."
-    try:
+    if not callbackhandler:
         update.message.reply_text(message)
-    except:
+    else:
         update.callback_query.message.edit_text(message)
     if using_cache == "Yes" and os.path.isfile(r"./cache/{}-{}-p1.json".format(username, m_type)):
         with open("./cache/{}-{}-p1.json".format(username, m_type)) as json_file:
@@ -706,6 +695,12 @@ def request_thread(update: Update, context: CallbackContext):
     elif "BadResponseException" in str(json_body):
         print("Jikan failed to connect to MyAnimeList. MyAnimeList may be down, unavailable or refuses to connect.")
         return
+    elif using_cache == "No":
+        message = "[INF] Page 1 successfully retrieved."
+        if not callbackhandler:
+            update.message.reply_text(message)
+        else:
+            update.callback_query.message.edit_text(message)
     shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title,shuffle_url,
                                          m_status, media_type, minimum, maximum, score)
     c_page = c_page + 1
@@ -740,13 +735,17 @@ def request_thread(update: Update, context: CallbackContext):
         shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url,
                                              m_status, media_type, minimum, maximum, score)
         c_url = c_url + n_url
+        if using_cache == "No":
+            message = "[INF] Page {} successfully retrieved.".format(c_page)
+            if not callbackhandler:
+                update.message.reply_text(message)
+            else:
+                update.callback_query.message.edit_text(message)
         c_page = c_page + 1
         length = len(str(json_body))
     if len(shuffle_title) == 0:
         message = "     Nothing out of your list matches configured search requirements."
-        if using_cache == "No" and cache_exists:
-            update.callback_query.message.edit_text(message)
-        elif using_cache == "No" and not cache_exists:
+        if not callbackhandler:
             update.message.reply_text(message)
         else:
             update.callback_query.message.edit_text(message)
@@ -762,12 +761,15 @@ def request_thread(update: Update, context: CallbackContext):
             .format(len(shuffle_title), telegram.utils.helpers.escape_markdown(rnd_pick, version=2),
                     telegram.utils.helpers.escape_markdown(shuffle_url[shuffle_title.index(rnd_pick)]), version=2)
     print(message)
-    if using_cache == "No" and cache_exists:
-        update.callback_query.message.edit_text(message, parse_mode=ParseMode.MARKDOWN_V2)
-    elif using_cache == "No" and not cache_exists:
+    # if using_cache == "No" and not cache_exists:
+    # if not last_message:
+    #     update.message.reply_text(message, parse_mode=ParseMode.MARKDOWN_V2)
+    # else:
+    if not callbackhandler:
         update.message.reply_text(message, parse_mode=ParseMode.MARKDOWN_V2)
     else:
         update.callback_query.message.edit_text(message, parse_mode=ParseMode.MARKDOWN_V2)
+    # update.callback_query.message.edit_text(message, parse_mode=ParseMode.MARKDOWN_V2)
     return stop
 
 
