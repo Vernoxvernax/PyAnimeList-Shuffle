@@ -32,7 +32,7 @@ Due to recent changes (to my script) it is now possible to cache your _anime_-li
 ![](https://i.imgur.com/nP7T9s7.png)
 
 ## Changelog:
-Commit `6f522f5`: (Telegram-Bot)
+Commit `488228a`: (Telegram-Bot)
 * Cache is now built on case-insensitive files. (no more "username.json" and "Username.json" files at the same time)
 * General improvements and removal of unused comments
 ###### Until someone finds this repo and does not report me within seconds: I have decided to distance myself from version numbers and will start addressing changes in the changelog here by github's commit sha.
