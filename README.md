@@ -4,6 +4,9 @@
 
 This projects heavily relies on [Jikan](https://jikan.moe/) (v4), an unofficial MyAnimeList API.
 
+##Jikan v4 disclaimer:
+Since v4 features new versions of the json files this projects uses, you'll have to remove your old cache.
+
 ## Telegram Bot:
 #### https://t.me/pyanimelist_bot
 ###### Doesn't need any setup on your side, just text him/her: `/start`.
