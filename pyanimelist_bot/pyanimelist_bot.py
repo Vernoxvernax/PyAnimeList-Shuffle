@@ -748,7 +748,10 @@ def request_thread(update: Update, context: CallbackContext):
                 with open("./cache/{}-{}-p{}.json".format(username, m_type, c_page), "w+") as json_file:
                     json_file.write(request.text)
                 json_body = json.loads(request.text)
-                req_status = False
+                if "'report_url'" not in str(json_body):
+                    req_status = False
+                else:
+                    print("request failed :(")
         if "BadResponseException" in str(json_body):
             print("The connection to MyAnimeList failed.")
             return
