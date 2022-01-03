@@ -2,7 +2,7 @@
 
 ##### Discord: DepriSheep#1841
 
-This projects heavily relies on [Jikan](https://jikan.moe/) (v3), an unofficial MyAnimeList API.
+This projects heavily relies on [Jikan](https://jikan.moe/) (v4), an unofficial MyAnimeList API.
 
 ## Telegram Bot:
 #### https://t.me/pyanimelist_bot
@@ -26,12 +26,19 @@ The Jikan API also provides only very little possibilities to filter the request
 Due to recent changes (to my script) it is now possible to cache your _anime_-list locally, if activated.
 
 ## To-Do:
+* come up with better changelog documentation
 * Look into discord bot api
 
 ## Demonstration:
 ![](https://i.imgur.com/nP7T9s7.png)
 
 ## Changelog:
+Commit `73696e5` and `0ae9606`: (Telegram-bot and Script)
+* Update to Jikan v4.
+* Requests are now a lot faster since we are allowed to send 60 requests/s instead of only 30.
+* Bugs are currently everywhere (jikan) so problems may occur.
+* Fixed bug where the last cache entry lead to a sleep time of 4 seconds.
+
 Commit `488228a`: (Telegram-Bot)
 * Cache is now built on case-insensitive files. (no more "username.json" and "Username.json" files at the same time)
 * General improvements and removal of unused comments
