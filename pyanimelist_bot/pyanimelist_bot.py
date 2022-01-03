@@ -73,7 +73,7 @@ def adding_handler():
                                                              'Plan to Read|Reading)$')
             ],
             RELEASESTATUS: [
-                CallbackQueryHandler(release_status_end, pattern='^(No|Airing|Publishing|Finished'
+                CallbackQueryHandler(release_status_end, pattern='^(No|Currently Airing|Currently Publishing|Finished'
                                                                  '|Not yet Aired|Not yet Published)$')
             ],
             SCORE: [
@@ -247,7 +247,7 @@ def userstatus_end(update: Update, context: CallbackContext) -> None:
         release_status_reply = [
             [
                 InlineKeyboardButton("No", callback_data="No"),
-                InlineKeyboardButton("Airing", callback_data="Airing")
+                InlineKeyboardButton("Currently Airing", callback_data="Currently Airing")
             ],
             [
                 InlineKeyboardButton("Finished", callback_data="Finished"),
@@ -258,7 +258,7 @@ def userstatus_end(update: Update, context: CallbackContext) -> None:
         release_status_reply = [
             [
                 InlineKeyboardButton("No", callback_data="No"),
-                InlineKeyboardButton("Publishing", callback_data="Publishing")
+                InlineKeyboardButton("Currently Publishing", callback_data="Currently Publishing")
             ],
             [
                 InlineKeyboardButton("Finished", callback_data="Finished"),
@@ -274,6 +274,15 @@ def userstatus_end(update: Update, context: CallbackContext) -> None:
 def release_status_end(update: Update, context: CallbackContext) -> None:
     global release_status
     release_status = update.callback_query.data
+    if release_status == "Finished":
+        if listtype == "Anime":
+            release_status = "Finished Airing"
+        else:
+            release_status = "Finished"
+    if release_status == "Not yet Aired":
+        release_status = "Not yet aired"
+    if release_status == "Not yet Published":
+        release_status = "Not yet published"
     score_reply = [
         [
             InlineKeyboardButton("10", callback_data="10"),
@@ -464,26 +473,26 @@ def request_thread(update: Update, context: CallbackContext):
         item_list = []
         if m_type == "animelist":
             if query != "n":
-                for eitem in json_body[mtype]:
-                    item = json_body[mtype].index(eitem)
-                    for query in json_body[mtype][item]["genres"]:
-                        query = json_body[mtype][item]["genres"].index(query)
-                        a_genre = json_body[mtype][item]["genres"][query]["mal_id"]
+                for eitem in json_body["data"]:
+                    item = json_body["data"].index(eitem)
+                    for query in json_body["data"][item][mtype]["genres"]:
+                        query = json_body["data"][item][mtype]["genres"].index(query)
+                        a_genre = json_body["data"][item][mtype]["genres"][query]["mal_id"]
                         if genre == a_genre:
                             item_list.append(eitem)
-                    for query in json_body[mtype][item]["demographics"]:
-                        query = json_body[mtype][item]["demographics"].index(query)
-                        a_genre = json_body[mtype][item]["demographics"][query]["mal_id"]
+                    for query in json_body["data"][item][mtype]["demographics"]:
+                        query = json_body["data"][item][mtype]["demographics"].index(query)
+                        a_genre = json_body["data"][item][mtype]["demographics"][query]["mal_id"]
                         if genre == a_genre:
                             item_list.append(eitem)
             else:
-                for eitem in json_body[mtype]:
+                for eitem in json_body["data"]:
                     item_list.append(eitem)
             if pref != "n":
                 pref_list = []
                 for pref_check in item_list:
                     pref_index = item_list.index(pref_check)
-                    if item_list[pref_index]["airing_status"] == int(pref):
+                    if item_list[pref_index][mtype]["status"] == pref:
                         pref_list.append(pref_check)
                 item_list = pref_list.copy()
             if status != "n":
@@ -497,7 +506,7 @@ def request_thread(update: Update, context: CallbackContext):
                 media_list = []
                 for media_type_check in item_list:
                     media_type_index = item_list.index(media_type_check)
-                    if item_list[media_type_index]["type"] == media_type:
+                    if item_list[media_type_index][mtype]["type"] == media_type:
                         media_list.append(media_type_check)
                 item_list = media_list.copy()
             if score != 0:
@@ -507,18 +516,18 @@ def request_thread(update: Update, context: CallbackContext):
                     if item_list[score_index]["score"] == score:
                         score_list.append(score_check)
                 item_list = score_list.copy()
-            if minimum[0] != 0:
+            if int(minimum[0]) != 0:
                 mini_list = []
                 for mini_check in item_list:
                     mini_index = item_list.index(mini_check)
-                    if item_list[mini_index]["total_episodes"] >= minimum[0]:
+                    if item_list[mini_index][mtype]["episodes"] >= int(minimum[0]):
                         mini_list.append(mini_check)
                 item_list = mini_list.copy()
-            if maximum[0] != 0:
+            if int(maximum[0]) != 0:
                 max_list = []
                 for max_check in item_list:
                     max_index = item_list.index(max_check)
-                    if item_list[max_index]["total_episodes"] <= maximum[0]:
+                    if item_list[max_index][mtype]["episodes"] <= int(maximum[1]):
                         max_list.append(max_check)
                 item_list = max_list.copy()
             if not item_list:
@@ -526,31 +535,31 @@ def request_thread(update: Update, context: CallbackContext):
                 return shuffle_title, shuffle_url
             for item in item_list:
                 item_index = item_list.index(item)
-                shuffle_title.append(item_list[item_index]['title'])
-                shuffle_url.append(item_list[item_index]['url'])
+                shuffle_title.append(item_list[item_index][mtype]['title'])
+                shuffle_url.append(item_list[item_index][mtype]['url'])
             return shuffle_title, shuffle_url
         elif m_type == "mangalist":
             if query != "n":
-                for eitem in json_body[mtype]:
-                    item = json_body[mtype].index(eitem)
-                    for query in json_body[mtype][item]["genres"]:
-                        query = json_body[mtype][item]["genres"].index(query)
-                        a_genre = json_body[mtype][item]["genres"][query]["mal_id"]
+                for eitem in json_body["data"]:
+                    item = json_body["data"].index(eitem)
+                    for query in json_body["data"][item][mtype]["genres"]:
+                        query = json_body["data"][item][mtype]["genres"].index(query)
+                        a_genre = json_body["data"][item][mtype]["genres"][query]["mal_id"]
                         if genre == a_genre:
                             item_list.append(eitem)
-                    for query in json_body[mtype][item]["demographics"]:
-                        query = json_body[mtype][item]["demographics"].index(query)
-                        a_genre = json_body[mtype][item]["demographics"][query]["mal_id"]
+                    for query in json_body["data"][item][mtype]["demographics"]:
+                        query = json_body["data"][item][mtype]["demographics"].index(query)
+                        a_genre = json_body["data"][item][mtype]["demographics"][query]["mal_id"]
                         if genre == a_genre:
                             item_list.append(eitem)
             else:
-                for eitem in json_body[mtype]:
+                for eitem in json_body["data"]:
                     item_list.append(eitem)
             if pref != "n":
                 pref_list = []
                 for pref_check in item_list:
                     pref_index = item_list.index(pref_check)
-                    if item_list[pref_index]["publishing_status"] == int(pref):
+                    if item_list[pref_index][mtype]["status"] == pref:
                         pref_list.append(pref_check)
                 item_list = pref_list.copy()
             if status != "n":
@@ -564,7 +573,7 @@ def request_thread(update: Update, context: CallbackContext):
                 media_list = []
                 for media_type_check in item_list:
                     media_type_index = item_list.index(media_type_check)
-                    if item_list[media_type_index]["type"] == media_type:
+                    if item_list[media_type_index][mtype]["type"] == media_type:
                         media_list.append(media_type_check)
                 item_list = media_list.copy()
             if score != 0:
@@ -574,32 +583,32 @@ def request_thread(update: Update, context: CallbackContext):
                     if item_list[score_index]["score"] == score:
                         score_list.append(score_check)
                 item_list = score_list.copy()
-            if minimum[0] != 0:
+            if int(minimum[0]) != 0:
                 mini_list = []
                 for mini_check in item_list:
                     mini_index = item_list.index(mini_check)
-                    if item_list[mini_index]["total_chapters"] >= minimum[0]:
+                    if item_list[mini_index][mtype]["chapters"] >= int(minimum[0]):
                         mini_list.append(mini_check)
                 item_list = mini_list.copy()
-            if minimum[1] != 0:
+            if int(minimum[1]) != 0:
                 mini_list = []
                 for mini_check in item_list:
                     mini_index = item_list.index(mini_check)
-                    if item_list[mini_index]["total_volumes"] >= minimum[1]:
+                    if item_list[mini_index][mtype]["volumes"] >= int(minimum[1]):
                         mini_list.append(mini_check)
                 item_list = mini_list.copy()
-            if maximum[0] != 0:
+            if int(maximum[0]) != 0:
                 max_list = []
                 for max_check in item_list:
                     max_index = item_list.index(max_check)
-                    if item_list[max_index]["total_chapters"] <= maximum[0]:
+                    if item_list[max_index][mtype]["chapters"] <= int(maximum[0]):
                         max_list.append(max_check)
                 item_list = max_list.copy()
-            if maximum[1] != 0:
+            if int(maximum[1]) != 0:
                 max_list = []
                 for max_check in item_list:
                     max_index = item_list.index(max_check)
-                    if item_list[max_index]["total_volumes"] <= maximum[1]:
+                    if item_list[max_index][mtype]["volumes"] <= int(maximum[1]):
                         max_list.append(max_check)
                 item_list = max_list.copy()
             if not item_list:
@@ -607,8 +616,8 @@ def request_thread(update: Update, context: CallbackContext):
                 return shuffle_title, shuffle_url
             for item in item_list:
                 item_index = item_list.index(item)
-                shuffle_title.append(item_list[item_index]['title'])
-                shuffle_url.append(item_list[item_index]['url'])
+                shuffle_title.append(item_list[item_index][mtype]['title'])
+                shuffle_url.append(item_list[item_index][mtype]['url'])
             return shuffle_title, shuffle_url
     # defining variables and assigning values
     genre = user_genre
@@ -629,12 +638,14 @@ def request_thread(update: Update, context: CallbackContext):
     elif userstatus in m_status_a:
         m_status = m_status_b[m_status_a.index(userstatus)]
     pref_a = ["n", "1", "2", "3"]
-    if m_type == "animelist":
-        pref_b = ["No", "Airing", "Finished", "Not yet Aired"]
-        pref = pref_a[pref_b.index(pref)]
-    elif m_type == "mangalist":
-        pref_b = ["No", "Publishing", "Finished", "Not yet Published"]
-        pref = pref_a[pref_b.index(pref)]
+    if pref == "No":
+        pref = "n"
+    # if m_type == "animelist":
+    #     pref_b = ["No", "Airing", "Finished", "Not yet Aired"]
+    #     pref = pref_a[pref_b.index(pref)]
+    # elif m_type == "mangalist":
+    #     pref_b = ["No", "Publishing", "Finished", "Not yet Published"]
+    #     pref = pref_a[pref_b.index(pref)]
     if m_type == "mangalist":
         ch_genre_a = [0] * 47
         ch_genre_b = [1, 2, 5, 46, 28, 4, 8, 10, 26, 47, 14, 7, 22, 24, 36, 30, 37, 45, 48, 9, 49, 12, 3,
@@ -667,16 +678,16 @@ def request_thread(update: Update, context: CallbackContext):
         sleeeping = 0
     elif using_cache == "No":
         req_status = True
-        sleeeping = 5
+        sleeeping = 1
     else:
         return stop
-    c_url = str("https://api.jikan.moe/v3/user/{}/{}".format(username, m_type))
+    c_url = str("https://api.jikan.moe/v4/users/{}/{}".format(username, m_type))
     while req_status:
         try:
             request = requests.get(c_url, timeout=6)
-        except Timeout:
-            print("API didn't respond. Trying again in 4 seconds...")
-            time.sleep(4)
+        except:
+            print("API didn't respond. Trying again in 2 seconds...")
+            time.sleep(2)
         else:
             with open("./cache/{}-{}-p1.json".format(username, m_type), "w+") as json_file:
                 json_file.write(request.text)
@@ -687,13 +698,19 @@ def request_thread(update: Update, context: CallbackContext):
     shuffle_url = []
     c_page = 1
     if length < 145:
-        print("The list doesn't seem to have content.")
+        print("Your list doesn't seem to have content.")
         return
     elif '"status":400,' in json_body:
-        print("That username doesn't exist.")
+        print("Invalid Request.")
+        return
+    elif '"status":404,' in json_body:
+        print("This anime/manga list does not exist.")
+        return
+    elif '"status":429,' in json_body:
+        print("You are sending too many requests.")
         return
     elif "BadResponseException" in str(json_body):
-        print("Jikan failed to connect to MyAnimeList. MyAnimeList may be down, unavailable or refuses to connect.")
+        print("Something broke :(")
         return
     elif using_cache == "No":
         message = "[INF] Page 1 successfully retrieved."
@@ -701,7 +718,8 @@ def request_thread(update: Update, context: CallbackContext):
             update.message.reply_text(message)
         else:
             update.callback_query.message.edit_text(message)
-    shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title,shuffle_url,
+    print(genre, type_short, c_page, shuffle_title, shuffle_url, m_status, media_type, minimum, maximum, score)
+    shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url,
                                          m_status, media_type, minimum, maximum, score)
     c_page = c_page + 1
     while length > 150:
@@ -711,19 +729,18 @@ def request_thread(update: Update, context: CallbackContext):
                     json_body = json.load(json_file)
             except:
                 json_body = ""
-                sleeeping = 6
             req_status = False
         else:
             req_status = True
         time.sleep(sleeeping)
         print("Loading page:", c_page)
-        n_url = str("https://api.jikan.moe/v3/user/{}/{}?page={}".format(username, m_type, c_page))
+        n_url = str("https://api.jikan.moe/v4/users/{}/{}?page={}".format(username, m_type, c_page))
         while req_status:
             try:
                 request = requests.get(n_url, timeout=6)
-            except Timeout:
-                print("API didn't respond. Trying again in 4 seconds...")
-                time.sleep(4)
+            except:
+                print("API didn't respond. Trying again in 2 seconds...")
+                time.sleep(2)
             else:
                 with open("./cache/{}-{}-p{}.json".format(username, m_type, c_page), "w+") as json_file:
                     json_file.write(request.text)
@@ -732,8 +749,9 @@ def request_thread(update: Update, context: CallbackContext):
         if "BadResponseException" in str(json_body):
             print("The connection to MyAnimeList failed.")
             return
-        shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url,
-                                             m_status, media_type, minimum, maximum, score)
+        if not json_body == "":
+            shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url,
+                                                 m_status, media_type, minimum, maximum, score)
         c_url = c_url + n_url
         if using_cache == "No":
             message = "[INF] Page {} successfully retrieved.".format(c_page)
@@ -749,7 +767,9 @@ def request_thread(update: Update, context: CallbackContext):
             update.message.reply_text(message)
         else:
             update.callback_query.message.edit_text(message)
-    rnd_pick = shuffle_title[random.randrange(len(shuffle_title))]
+        return stop
+    else:
+        rnd_pick = shuffle_title[random.randrange(len(shuffle_title))]
     if len(shuffle_title) == 1:
         message = "Only one match has been found:"\
                   "\n     [{} \- MyAnimeList\.net]({})".\
