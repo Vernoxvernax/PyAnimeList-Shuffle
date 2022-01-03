@@ -218,17 +218,17 @@ def reading_details():
           "> Airing/Publishing (1)\n"
           "> Finished (2)\n"
           "> Not yet Aired/Not yet Published (3)")
-    pref_a = ["n", "Currently Airing", "Finished Airing", "Not yet aired"]
+    if m_type == "animelist":
+        pref_a = ["n", "Currently Airing", "Finished Airing", "Not yet aired"]
+    else:
+        pref_a = ["n", "Currently Publishing", "Finished", "Not yet published"]
     pref_m = ["n", "1", "2", "3"]
     pref_b = [0] * 4
     for x in range(len(pref_a)):
         pref_b[x] = x
     pref_ = map(str, list(pref_b))
     pref = int(input_c(list(pref_)))
-    if pref in pref_b and m_type == "animelist":
-        pref = pref_a[pref_b.index(pref)]
-    elif pref in pref_b and m_type == "mangalist":
-        pref = pref_m[pref_b.index(pref)]
+    pref = pref_a[pref_b.index(pref)]
     print("\nFiltering after YOUR rating:\n"
           "> Masterpiece (10)\n"
           "> Great (9)\n"
@@ -241,7 +241,7 @@ def reading_details():
           "> Horrible (2)\n"
           "> Appalling (1)\n\n"
           "None (0)")
-    score_a = [0] * 10
+    score_a = [0] * 11
     for x in range(len(score_a)):
         score_a[x] = str(x)
     score = int(input_c(score_a))
@@ -464,14 +464,14 @@ def requesting():
                     if item_list[score_index]["score"] == score:
                         score_list.append(score_check)
                 item_list = score_list.copy()
-            if minimum != 0:
+            if int(minimum) != 0:
                 mini_list = []
                 for mini_check in item_list:
                     mini_index = item_list.index(mini_check)
                     if item_list[mini_index][mtype]["episodes"] >= int(minimum):
                         mini_list.append(mini_check)
                 item_list = mini_list.copy()
-            if maximum != 0:
+            if int(maximum) != 0:
                 max_list = []
                 for max_check in item_list:
                     max_index = item_list.index(max_check)
@@ -531,28 +531,28 @@ def requesting():
                     if item_list[score_index]["score"] == score:
                         score_list.append(score_check)
                 item_list = score_list.copy()
-            if minimum[0] != 0:
+            if int(minimum[0]) != 0:
                 mini_list = []
                 for mini_check in item_list:
                     mini_index = item_list.index(mini_check)
                     if item_list[mini_index][mtype]["chapters"] >= int(minimum[0]):
                         mini_list.append(mini_check)
                 item_list = mini_list.copy()
-            if minimum[1] != 0:
+            if int(minimum[1]) != 0:
                 mini_list = []
                 for mini_check in item_list:
                     mini_index = item_list.index(mini_check)
                     if item_list[mini_index][mtype]["volumes"] >= int(minimum[1]):
                         mini_list.append(mini_check)
                 item_list = mini_list.copy()
-            if maximum[0] != 0:
+            if int(maximum[0]) != 0:
                 max_list = []
                 for max_check in item_list:
                     max_index = item_list.index(max_check)
                     if item_list[max_index][mtype]["chapters"] <= int(maximum[0]):
                         max_list.append(max_check)
                 item_list = max_list.copy()
-            if maximum[1] != 0:
+            if int(maximum[1]) != 0:
                 max_list = []
                 for max_check in item_list:
                     max_index = item_list.index(max_check)
@@ -600,8 +600,7 @@ def requesting():
             if cache_check == "true" and not os.path.isfile(r"./pylist-cache/{}-{}-p1.json".format(username, m_type)):
                 with open("./pylist-cache/{}-{}-p1.json".format(username, m_type), "a+") as json_file:
                     json_file.write(request.text)
-            if "{data:[]}" in str(request):
-                json_body = json.loads(request.text)
+            json_body = json.loads(request.text)
             req_status = False
     length = len(str(json_body))
     shuffle_title = []
@@ -629,10 +628,7 @@ def requesting():
         if cache_check == "true" and os.path.isfile(r"./pylist-cache/{}-{}-p{}.json".format(username, m_type, c_page)):
             try:
                 with open("./pylist-cache/{}-{}-p{}.json".format(username, m_type, c_page)) as json_file:
-                    if not json_file == "":
-                        json_body = json.load(json_file)
-                    else:
-                        json_body = ""
+                    json_body = json.load(json_file)
             except:
                 json_body = ""
             req_status = False
