@@ -692,7 +692,10 @@ def request_thread(update: Update, context: CallbackContext):
             with open("./cache/{}-{}-p1.json".format(username, m_type), "w+") as json_file:
                 json_file.write(request.text)
             json_body = json.loads(request.text)
-            req_status = False
+            if "'report_url'" not in str(json_body):
+                req_status = False
+            else:
+                print("request failed :(")
     length = len(str(json_body))
     shuffle_title = []
     shuffle_url = []
