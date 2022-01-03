@@ -218,7 +218,7 @@ def reading_details():
           "> Airing/Publishing (1)\n"
           "> Finished (2)\n"
           "> Not yet Aired/Not yet Published (3)")
-    pref_a = ["n", "1", "2", "3"]
+    pref_a = ["n", "Currently Airing", "Finished Airing", "Not yet aired"]
     pref_m = ["n", "1", "2", "3"]
     pref_b = [0] * 4
     for x in range(len(pref_a)):
@@ -252,23 +252,31 @@ def reading_details():
             ask = True
             min_message = "(Enter 0 to ignore)\n"\
                           "> Minimum~EP - (number < 10.000)\n: "
-            minimum = int(input(min_message))
+            minimum = input(min_message)
             while ask:
-                if minimum < 10000:
-                    ask = False
-                else:
+                try:
+                    if int(minimum) < 10000:
+                        ask = False
+                    else:
+                        error = "Input invalid!\nPlease try again.\n: "
+                        minimum = input(error)
+                except:
                     error = "Input invalid!\nPlease try again.\n: "
-                    minimum = int(input(error))
+                    minimum = input(error)
             max_message = "> Maximum~EP - (number < 10.000)\n: "
-            maximum = int(input(max_message))
+            maximum = input(max_message)
             ask = True
             while ask:
-                if maximum < 10000:
-                    ask = False
-                else:
+                try:
+                    if int(maximum) < 10000:
+                        ask = False
+                    else:
+                        error = "Input invalid!\nPlease try again.\n: "
+                        maximum = input(error)
+                except:
                     error = "Input invalid!\nPlease try again.\n: "
-                    maximum = int(input(error))
-            if minimum < maximum or maximum == 0:
+                    maximum = input(error)
+            if int(minimum) < int(maximum) or int(maximum) == 0:
                 double_check = True
             else:
                 print("[ERR] Your \"Minimum\" is bigger than your \"Maximum\".\n\n")
@@ -284,34 +292,40 @@ def reading_details():
                 maximum = []
             else:
                 min_message = "> Minimum~Volumes - (number < 100.000)\n: "
-            minimum.append(int(input(min_message)))
+            minimum.append(input(min_message))
             while ask:
-                if minimum[-1] < 100000:
-                    ask = False
-
-                else:
+                try:
+                    if int(minimum[-1]) < 100000:
+                        ask = False
+                    else:
+                        error = "Input invalid!\nPlease try again.\n: "
+                        minimum = input(error)
+                except:
                     error = "Input invalid!\nPlease try again.\n: "
-                    minimum[-1] = int(input(error))
+                    minimum[-1] = input(error)
             if run == 1:
                 max_message = "> Maximum~Chapters - (number < 100.000)\n: "
             else:
                 max_message = "> Maximum~Volumes - (number < 100.000)\n: "
-            maximum.append(int(input(max_message)))
+            maximum.append(input(max_message))
             ask = True
             while ask:
-                if maximum[-1] < 100000:
-                    ask = False
-                else:
+                try:
+                    if int(maximum[-1]) < 100000:
+                        ask = False
+                    else:
+                        error = "Input invalid!\nPlease try again.\n: "
+                        maximum = input(error)
+                except:
                     error = "Input invalid!\nPlease try again.\n: "
-                    maximum[-1] = int(input(error))
-            if minimum[-1] < maximum[-1] or maximum[-1] == 0:
+                    maximum[-1] = input(error)
+            if int(minimum[-1]) < int(maximum[-1]) or int(maximum[-1]) == 0:
                 if run == 2:
                     double_check = True
                 else:
                     run = 2
             else:
                 print("[ERR] Your \"Minimum\" is bigger than your \"Maximum\".\n\n")
-    print(minimum, maximum)
     print("\nWhich of the following genres do you want to prioritize:\n"
           "> None (0)\n")
     left = [".Genres.             ",
@@ -407,26 +421,26 @@ def requesting():
         item_list = []
         if m_type == "animelist":
             if query != "n":
-                for eitem in json_body[mtype]:
-                    item = json_body[mtype].index(eitem)
-                    for query in json_body[mtype][item]["genres"]:
-                        query = json_body[mtype][item]["genres"].index(query)
-                        a_genre = json_body[mtype][item]["genres"][query]["mal_id"]
+                for eitem in json_body["data"]:
+                    item = json_body["data"].index(eitem)
+                    for query in json_body["data"][item][mtype]["genres"]:
+                        query = json_body["data"][item][mtype]["genres"].index(query)
+                        a_genre = json_body["data"][item][mtype]["genres"][query]["mal_id"]
                         if genre == a_genre:
                             item_list.append(eitem)
-                    for query in json_body[mtype][item]["demographics"]:
-                        query = json_body[mtype][item]["demographics"].index(query)
-                        a_genre = json_body[mtype][item]["demographics"][query]["mal_id"]
+                    for query in json_body["data"][item][mtype]["demographics"]:
+                        query = json_body["data"][item][mtype]["demographics"].index(query)
+                        a_genre = json_body["data"][item][mtype]["demographics"][query]["mal_id"]
                         if genre == a_genre:
                             item_list.append(eitem)
             else:
-                for eitem in json_body[mtype]:
+                for eitem in json_body["data"]:
                     item_list.append(eitem)
             if pref != "n":
                 pref_list = []
                 for pref_check in item_list:
                     pref_index = item_list.index(pref_check)
-                    if item_list[pref_index]["airing_status"] == int(pref):
+                    if item_list[pref_index][mtype]["status"] == pref:
                         pref_list.append(pref_check)
                 item_list = pref_list.copy()
             if status != "n":
@@ -440,7 +454,7 @@ def requesting():
                 media_list = []
                 for media_type_check in item_list:
                     media_type_index = item_list.index(media_type_check)
-                    if item_list[media_type_index]["type"] == media_type:
+                    if item_list[media_type_index][mtype]["type"] == media_type:
                         media_list.append(media_type_check)
                 item_list = media_list.copy()
             if score != 0:
@@ -454,14 +468,14 @@ def requesting():
                 mini_list = []
                 for mini_check in item_list:
                     mini_index = item_list.index(mini_check)
-                    if item_list[mini_index]["total_episodes"] >= minimum:
+                    if item_list[mini_index][mtype]["episodes"] >= int(minimum):
                         mini_list.append(mini_check)
                 item_list = mini_list.copy()
             if maximum != 0:
                 max_list = []
                 for max_check in item_list:
                     max_index = item_list.index(max_check)
-                    if item_list[max_index]["total_episodes"] <= maximum:
+                    if item_list[max_index][mtype]["episodes"] <= int(maximum):
                         max_list.append(max_check)
                 item_list = max_list.copy()
             if not item_list:
@@ -469,31 +483,31 @@ def requesting():
                 return shuffle_title, shuffle_url
             for item in item_list:
                 item_index = item_list.index(item)
-                shuffle_title.append(item_list[item_index]['title'])
-                shuffle_url.append(item_list[item_index]['url'])
+                shuffle_title.append(item_list[item_index][mtype]['title'])
+                shuffle_url.append(item_list[item_index][mtype]['url'])
             return shuffle_title, shuffle_url
         elif m_type == "mangalist":
             if query != "n":
-                for eitem in json_body[mtype]:
-                    item = json_body[mtype].index(eitem)
-                    for query in json_body[mtype][item]["genres"]:
-                        query = json_body[mtype][item]["genres"].index(query)
-                        a_genre = json_body[mtype][item]["genres"][query]["mal_id"]
+                for eitem in json_body["data"]:
+                    item = json_body["data"].index(eitem)
+                    for query in json_body["data"][item][mtype]["genres"]:
+                        query = json_body["data"][item][mtype]["genres"].index(query)
+                        a_genre = json_body["data"][item][mtype]["genres"][query]["mal_id"]
                         if genre == a_genre:
                             item_list.append(eitem)
-                    for query in json_body[mtype][item]["demographics"]:
-                        query = json_body[mtype][item]["demographics"].index(query)
-                        a_genre = json_body[mtype][item]["demographics"][query]["mal_id"]
+                    for query in json_body["data"][item][mtype]["demographics"]:
+                        query = json_body["data"][item][mtype]["demographics"].index(query)
+                        a_genre = json_body["data"][item][mtype]["demographics"][query]["mal_id"]
                         if genre == a_genre:
                             item_list.append(eitem)
             else:
-                for eitem in json_body[mtype]:
+                for eitem in json_body["data"]:
                     item_list.append(eitem)
             if pref != "n":
                 pref_list = []
                 for pref_check in item_list:
                     pref_index = item_list.index(pref_check)
-                    if item_list[pref_index]["publishing_status"] == int(pref):
+                    if item_list[pref_index][mtype]["status"] == pref:
                         pref_list.append(pref_check)
                 item_list = pref_list.copy()
             if status != "n":
@@ -507,7 +521,7 @@ def requesting():
                 media_list = []
                 for media_type_check in item_list:
                     media_type_index = item_list.index(media_type_check)
-                    if item_list[media_type_index]["type"] == media_type:
+                    if item_list[media_type_index][mtype]["type"] == media_type:
                         media_list.append(media_type_check)
                 item_list = media_list.copy()
             if score != 0:
@@ -521,28 +535,28 @@ def requesting():
                 mini_list = []
                 for mini_check in item_list:
                     mini_index = item_list.index(mini_check)
-                    if item_list[mini_index]["total_chapters"] >= minimum[0]:
+                    if item_list[mini_index][mtype]["chapters"] >= int(minimum[0]):
                         mini_list.append(mini_check)
                 item_list = mini_list.copy()
             if minimum[1] != 0:
                 mini_list = []
                 for mini_check in item_list:
                     mini_index = item_list.index(mini_check)
-                    if item_list[mini_index]["total_volumes"] >= minimum[1]:
+                    if item_list[mini_index][mtype]["volumes"] >= int(minimum[1]):
                         mini_list.append(mini_check)
                 item_list = mini_list.copy()
             if maximum[0] != 0:
                 max_list = []
                 for max_check in item_list:
                     max_index = item_list.index(max_check)
-                    if item_list[max_index]["total_chapters"] <= maximum[0]:
+                    if item_list[max_index][mtype]["chapters"] <= int(maximum[0]):
                         max_list.append(max_check)
                 item_list = max_list.copy()
             if maximum[1] != 0:
                 max_list = []
                 for max_check in item_list:
                     max_index = item_list.index(max_check)
-                    if item_list[max_index]["total_volumes"] <= maximum[1]:
+                    if item_list[max_index][mtype]["volumes"] <= int(maximum[1]):
                         max_list.append(max_check)
                 item_list = max_list.copy()
             if not item_list:
@@ -550,8 +564,8 @@ def requesting():
                 return shuffle_title, shuffle_url
             for item in item_list:
                 item_index = item_list.index(item)
-                shuffle_title.append(item_list[item_index]['title'])
-                shuffle_url.append(item_list[item_index]['url'])
+                shuffle_title.append(item_list[item_index][mtype]['title'])
+                shuffle_url.append(item_list[item_index][mtype]['url'])
             return shuffle_title, shuffle_url
     # From here on requesting() actually starts. The above function is to filter the list later on.
     m_type, m_status, genre, pref, genre, media_type, minimum, maximum, score = reading_details()
@@ -571,28 +585,23 @@ def requesting():
         sleeeping = 0
     else:
         req_status = True
-        sleeeping = 6
+        sleeeping = 1
         print("")
     print("Loading page:", x)
     # Change below domain, if you are having connection issues.
-    c_url = str("https://api.jikan.moe/v3/user/{}/{}".format(username, m_type))
-    # try:
-    #     request = requests.get(c_url, timeout=6)
-    # except Timeout:
-    #     print("API didn't respond. Trying again in 4 seconds...")
-    #     time.sleep(4)
-    #     request = requests.get(c_url, timeout=8)
+    c_url = str("https://api.jikan.moe/v4/users/{}/{}".format(username, m_type))
     while req_status:
         try:
             request = requests.get(c_url, timeout=6)
-        except Timeout:
-            print("API didn't respond. Trying again in 4 seconds...")
-            time.sleep(4)
+        except:
+            print("API didn't respond. Trying again in 2 seconds...")
+            time.sleep(2)
         else:
             if cache_check == "true" and not os.path.isfile(r"./pylist-cache/{}-{}-p1.json".format(username, m_type)):
                 with open("./pylist-cache/{}-{}-p1.json".format(username, m_type), "a+") as json_file:
                     json_file.write(request.text)
-            json_body = json.loads(request.text)
+            if "{data:[]}" in str(request):
+                json_body = json.loads(request.text)
             req_status = False
     length = len(str(json_body))
     shuffle_title = []
@@ -602,10 +611,16 @@ def requesting():
         print("Your list doesn't seem to have content.")
         return
     elif '"status":400,' in json_body:
-        print("That username doesn't exist.")
+        print("Invalid Request.")
+        return
+    elif '"status":404,' in json_body:
+        print("This anime/manga list does not exist.")
+        return
+    elif '"status":429,' in json_body:
+        print("You are sending too many requests.")
         return
     elif "BadResponseException" in str(json_body):
-        print("Jikan failed to connect to MyAnimeList. MyAnimeList may be down, unavailable or refuses to connect.")
+        print("Something broke :(")
         return
     shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title,
                                          shuffle_url, m_status, media_type, minimum, maximum, score)
@@ -614,34 +629,37 @@ def requesting():
         if cache_check == "true" and os.path.isfile(r"./pylist-cache/{}-{}-p{}.json".format(username, m_type, c_page)):
             try:
                 with open("./pylist-cache/{}-{}-p{}.json".format(username, m_type, c_page)) as json_file:
-                    json_body = json.load(json_file)
+                    if not json_file == "":
+                        json_body = json.load(json_file)
+                    else:
+                        json_body = ""
             except:
                 json_body = ""
-                sleeeping = 6
             req_status = False
         else:
             req_status = True
         time.sleep(sleeeping)
         print("Loading page:", c_page)
-        n_url = str("https://api.jikan.moe/v3/user/{}/{}?page={}".format(username, m_type, c_page))
+        n_url = str("https://api.jikan.moe/v4/users/{}/{}?page={}".format(username, m_type, c_page))
         while req_status:
             try:
                 request = requests.get(n_url, timeout=6)
-            except Timeout:
-                print("API didn't respond. Trying again in 4 seconds...")
-                time.sleep(4)
+            except:
+                print("API didn't respond. Trying again in 2 seconds...")
+                time.sleep(2)
             else:
                 if cache_check == "true" and not os.path.isfile(r"./pylist-cache/{}-{}-p{}.json".format(
-                        username,m_type, c_page)):
+                        username, m_type, c_page)):
                     with open("./pylist-cache/{}-{}-p{}.json".format(username, m_type, c_page), "a+") as json_file:
                         json_file.write(request.text)
-                json_body = json.loads(request.text)
+                    json_body = json.loads(request.text)
                 req_status = False
         if "BadResponseException" in str(json_body):
             print("The connection to MyAnimeList failed.")
             return
-        shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title,
-                                             shuffle_url, m_status, media_type,minimum, maximum, score)
+        if not json_body == "":
+            shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title,
+                                                 shuffle_url, m_status, media_type, minimum, maximum, score)
         c_url = c_url + n_url
         c_page = c_page + 1
         length = len(str(json_body))
