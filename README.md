@@ -36,6 +36,12 @@ Due to recent changes (to my script) it is now possible to cache your _anime_-li
 ![](https://i.imgur.com/nP7T9s7.png)
 
 ## Changelog:
+Commit `a8c1128` and `5afbbdc`: (Telegram-bot)
+* Fixed typo which resulted in unsuccessful spins when filtering anime episode amounts
+* Slightly improved error handling on failed requests
+* Increased request-timeout to 10 seconds, since v4 takes a little longer to answer.
+* Removed a debug print function
+
 Commit `73696e5` and `0ae9606`: (Telegram-bot and Script)
 * Update to Jikan v4.
 * Requests are now a lot faster since we are allowed to send 60 requests/s instead of only 30.
