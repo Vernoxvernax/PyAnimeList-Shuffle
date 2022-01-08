@@ -684,14 +684,17 @@ def request_thread(update: Update, context: CallbackContext):
     c_url = str("https://api.jikan.moe/v4/users/{}/{}".format(username, m_type))
     while req_status:
         try:
-            request = requests.get(c_url, timeout=6)
+            request = requests.get(c_url, timeout=10)
         except:
             print("API didn't respond. Trying again in 2 seconds...")
             time.sleep(2)
         else:
             with open("./cache/{}-{}-p1.json".format(username, m_type), "w+") as json_file:
                 json_file.write(request.text)
-            json_body = json.loads(request.text)
+            if "data" in request.text:
+                json_body = json.loads(request.text)
+            else:
+                json_body = ""
             if "'report_url'" not in str(json_body):
                 req_status = False
             else:
@@ -721,7 +724,6 @@ def request_thread(update: Update, context: CallbackContext):
             update.message.reply_text(message)
         else:
             update.callback_query.message.edit_text(message)
-    print(genre, type_short, c_page, shuffle_title, shuffle_url, m_status, media_type, minimum, maximum, score)
     shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url,
                                          m_status, media_type, minimum, maximum, score)
     c_page = c_page + 1
@@ -740,14 +742,17 @@ def request_thread(update: Update, context: CallbackContext):
         n_url = str("https://api.jikan.moe/v4/users/{}/{}?page={}".format(username, m_type, c_page))
         while req_status:
             try:
-                request = requests.get(n_url, timeout=6)
+                request = requests.get(n_url, timeout=10)
             except:
                 print("API didn't respond. Trying again in 2 seconds...")
                 time.sleep(2)
             else:
                 with open("./cache/{}-{}-p{}.json".format(username, m_type, c_page), "w+") as json_file:
                     json_file.write(request.text)
-                json_body = json.loads(request.text)
+                if "data" in request.text:
+                    json_body = json.loads(request.text)
+                else:
+                    json_body = ""
                 if "'report_url'" not in str(json_body):
                     req_status = False
                 else:
