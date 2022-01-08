@@ -527,7 +527,7 @@ def request_thread(update: Update, context: CallbackContext):
                 max_list = []
                 for max_check in item_list:
                     max_index = item_list.index(max_check)
-                    if item_list[max_index][mtype]["episodes"] <= int(maximum[1]):
+                    if item_list[max_index][mtype]["episodes"] <= int(maximum[0]):
                         max_list.append(max_check)
                 item_list = max_list.copy()
             if not item_list:
