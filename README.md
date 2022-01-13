@@ -36,6 +36,13 @@ Due to recent changes (to my script) it is now possible to cache your _anime_-li
 ![](https://i.imgur.com/nP7T9s7.png)
 
 ## Changelog:
+Commit `0ddaa9e`: (Telegram-bot)
+* new feature: excluding/blacklisting genres (two integers separated by a space)
+* printing genres/demographics/themes as an image for screens with smaller width
+  * image is smaller than 92kb in size; imgur used as cdn
+* fixed error handling (including printing errors)
+* removed unused comments and variables
+
 Commit `a8c1128` and `5afbbdc`: (Telegram-bot)
 * Fixed typo which resulted in unsuccessful spins when filtering anime episode amounts
 * Slightly improved error handling on failed requests
