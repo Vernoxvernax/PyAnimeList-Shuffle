@@ -5,7 +5,8 @@
 This projects heavily relies on [Jikan](https://jikan.moe/) (v4), an unofficial MyAnimeList API.
 
 ## Jikan v4 disclaimer:
-Since v4 features new versions of the json files this projects uses, you'll have to remove your old cache.
+* Since v4 features new versions of the json files this projects uses, you'll have to remove your old cache.
+* Manga-lists currently don't contain explicit genres. Will update if fixed.
 
 ## Telegram Bot:
 #### https://t.me/pyanimelist_bot
