@@ -84,7 +84,7 @@ def adding_handler():
                 MessageHandler(Filters.regex('^[0-9]+$'), min_end)
             ],
             GENRE: [
-                MessageHandler(Filters.regex('^[0-9]+$'), cache_check)
+                MessageHandler(Filters.regex('^([0-9]+|[0-9]+\s[0-9]+)$'), cache_check)
             ],
             CACHE: [
                 CallbackQueryHandler(cache_input, pattern='^(No|Yes)$')
@@ -334,37 +334,43 @@ def score_end(update: Update, context: CallbackContext):
 def min_end(update: Update, context: CallbackContext):
     global counter, maximum, minimum
     genre_reply = "```\n" \
-                  ".Genres.            .Themes." \
-                  "\nAction (1)        | Cars (23)" \
-                  "\nAdventure (2)     | Demons (24)" \
-                  "\nAvant Garde (3)   | Game (25)" \
-                  "\nAward Winning (4) | Harem (26)" \
-                  "\nBoys Love (5)     | Historical (27)" \
-                  "\nComedy (6)        | Martial Arts (28)" \
-                  "\nDrama (7)         | Mecha (29)" \
-                  "\nFantasy (8)       | Military (30)" \
-                  "\nGirls Love (9)    | Music (31)" \
-                  "\nGourmet (10)      | Parody (32)" \
-                  "\nHorror (11)       | Police (33)" \
-                  "\nMystery (12)      | Psychological (34)" \
-                  "\nRomance (13)      | Samurai (35)" \
-                  "\nSci-Fi (14)       | School (36)" \
-                  "\nSlice of Life (15)| Space (37)" \
-                  "\nSports (16)       | Super Power (38)" \
-                  "\nSupernatural (17) | Vampire (39)" \
-                  "\nSuspense (18)     | .Demographics." \
-                  "\nWork Life (19)    | Josei (40)" \
-                  "\n.Explicit Genres. | Kids (41)" \
-                  "\nEcchi (20)        | Seinen (42)" \
-                  "\nErotica (21)      | Shoujo (43)" \
-                  "\nHentai (22)       | Shounen (44)```"
-    if listtype == "Anime":
-        genre_reply = genre_reply + "```\n\nNo genre (0)```"
-    else:
-        genre_reply = genre_reply + "```\n\n.Manga exclusive tags:." \
-                                    "\nDoujinshi (45)    | Gender Bender (46)" \
-                                    "\n\nNo genre (0)```"
-    genre_message = "Type the number of the genre, you want to prioritize:\n{}".format(genre_reply)
+                  "> 0 -> don't do anything" \
+                  "\n> 1 -> results with [1]" \
+                  "\n> 0 32 -> results without [32]" \
+                  "\n> 1 2 -> results w/ [1] excl. [2]\n" \
+                  "\n.Genres.           .Themes." \
+                  "\nAction (1)        |Cars (23)" \
+                  "\nAdventure (2)     |Demons (24)" \
+                  "\nAvant Garde (3)   |Game (25)" \
+                  "\nAward Winning (4) |Harem (26)" \
+                  "\nBoys Love (5)     |Historical (27)" \
+                  "\nComedy (6)        |Martial Arts (28)" \
+                  "\nDrama (7)         |Mecha (29)" \
+                  "\nFantasy (8)       |Military (30)" \
+                  "\nGirls Love (9)    |Music (31)" \
+                  "\nGourmet (10)      |Parody (32)" \
+                  "\nHorror (11)       |Police (33)" \
+                  "\nMystery (12)      |Psychological (34)" \
+                  "\nRomance (13)      |Samurai (35)" \
+                  "\nSci-Fi (14)       |School (36)" \
+                  "\nSlice of Life (15)|Space (37)" \
+                  "\nSports (16)       |Super Power (38)" \
+                  "\nSupernatural (17) |Vampire (39)" \
+                  "\nSuspense (18)     |" \
+                  "\nWork Life (19)    |.Demographics." \
+                  "\n                  |Josei (40)" \
+                  "\n.Explicit Genres. |Kids (41)" \
+                  "\nEcchi (20)        |Seinen (42)" \
+                  "\nErotica (21)      |Shoujo (43)" \
+                  "\nHentai (22)       |Shounen (44)```"
+    # genre_message = "Prioritizing/Avoiding genres?:\n{}".format(genre_reply)
+    genre_message = "Prioritizing/Avoiding genres?:"
+    if listtype == "Manga":
+        genre_message = "Prioritizing/Avoiding genres?:" \
+                        "```\n.Manga exclusive tags." \
+                        "\nDoujinshi (45)\nGender Bender (46)```"
+        # genre_reply = genre_reply + "``` \n\n.Manga exclusive tags." \
+        #                             "\nDoujinshi (45)\nGender Bender (46)```"
     if counter == 0:
         try:
             min_answer = update.callback_query.data
@@ -380,6 +386,7 @@ def min_end(update: Update, context: CallbackContext):
     if min_answer == "No":
         maximum = minimum = [0, 0]
         update.callback_query.message.edit_text(genre_message, parse_mode="Markdown")
+        update.callback_query.message.reply_photo("https://i.imgur.com/Kqb1dk3.jpg")
         return GENRE
     elif counter in counter_check_a:
         minimum.append(min_answer)
@@ -428,8 +435,12 @@ def min_end(update: Update, context: CallbackContext):
 
 
 def cache_check(update: Update, context: CallbackContext):
-    global cache_exists, user_genre, using_cache, callbackhandler, queue_msg
+    global cache_exists, user_genre, using_cache, callbackhandler, queue_msg, genre_exclusion_bool
     user_genre = update.message.text
+    genre_exclusion_bool = False
+    if " " in user_genre:
+        user_genre = user_genre.split()
+        genre_exclusion_bool = True
     if os.path.isfile(r"./cache/{}-{}-p1.json".format(username, listtype_long)):
         question_reply = [
             [
@@ -473,18 +484,45 @@ def request_thread(update: Update, context: CallbackContext):
         item_list = []
         if m_type == "animelist":
             if query != "n":
-                for eitem in json_body["data"]:
-                    item = json_body["data"].index(eitem)
-                    for query in json_body["data"][item][mtype]["genres"]:
-                        query = json_body["data"][item][mtype]["genres"].index(query)
-                        a_genre = json_body["data"][item][mtype]["genres"][query]["mal_id"]
-                        if genre == a_genre:
+                if genre_exclusion_bool:
+                    def genre_exc_func(item):
+                        genre_positive = False
+                        genre_negative = False
+                        for query in json_body["data"][item][mtype]["genres"]:
+                            query = json_body["data"][item][mtype]["genres"].index(query)
+                            a_genre = json_body["data"][item][mtype]["genres"][query]["mal_id"]
+                            if genre[0] == a_genre:
+                                genre_positive = True
+                            if genre[1] == a_genre:
+                                genre_negative = True
+                        for query in json_body["data"][item][mtype]["demographics"]:
+                            query = json_body["data"][item][mtype]["demographics"].index(query)
+                            a_genre = json_body["data"][item][mtype]["demographics"][query]["mal_id"]
+                            if genre[0] == a_genre:
+                                genre_positive = True
+                            if genre[1] == a_genre:
+                                genre_negative = True
+                        return genre_positive, genre_negative
+                    for eitem in json_body["data"]:
+                        item = json_body["data"].index(eitem)
+                        genre_positive, genre_negative = genre_exc_func(item)
+                        if genre_positive and not genre_negative:
                             item_list.append(eitem)
-                    for query in json_body["data"][item][mtype]["demographics"]:
-                        query = json_body["data"][item][mtype]["demographics"].index(query)
-                        a_genre = json_body["data"][item][mtype]["demographics"][query]["mal_id"]
-                        if genre == a_genre:
+                        elif genre[0] == -1 and not genre_negative:
                             item_list.append(eitem)
+                else:
+                    for eitem in json_body["data"]:
+                        item = json_body["data"].index(eitem)
+                        for query in json_body["data"][item][mtype]["genres"]:
+                            query = json_body["data"][item][mtype]["genres"].index(query)
+                            a_genre = json_body["data"][item][mtype]["genres"][query]["mal_id"]
+                            if genre == a_genre:
+                                item_list.append(eitem)
+                        for query in json_body["data"][item][mtype]["demographics"]:
+                            query = json_body["data"][item][mtype]["demographics"].index(query)
+                            a_genre = json_body["data"][item][mtype]["demographics"][query]["mal_id"]
+                            if genre == a_genre:
+                                item_list.append(eitem)
             else:
                 for eitem in json_body["data"]:
                     item_list.append(eitem)
@@ -540,18 +578,45 @@ def request_thread(update: Update, context: CallbackContext):
             return shuffle_title, shuffle_url
         elif m_type == "mangalist":
             if query != "n":
-                for eitem in json_body["data"]:
-                    item = json_body["data"].index(eitem)
-                    for query in json_body["data"][item][mtype]["genres"]:
-                        query = json_body["data"][item][mtype]["genres"].index(query)
-                        a_genre = json_body["data"][item][mtype]["genres"][query]["mal_id"]
-                        if genre == a_genre:
+                if genre_exclusion_bool:
+                    def genre_exc_func(item):
+                        genre_positive = False
+                        genre_negative = False
+                        for query in json_body["data"][item][mtype]["genres"]:
+                            query = json_body["data"][item][mtype]["genres"].index(query)
+                            a_genre = json_body["data"][item][mtype]["genres"][query]["mal_id"]
+                            if genre[0] == a_genre:
+                                genre_positive = True
+                            if genre[1] == a_genre:
+                                genre_negative = True
+                        for query in json_body["data"][item][mtype]["demographics"]:
+                            query = json_body["data"][item][mtype]["demographics"].index(query)
+                            a_genre = json_body["data"][item][mtype]["demographics"][query]["mal_id"]
+                            if genre[0] == a_genre:
+                                genre_positive = True
+                            if genre[1] == a_genre:
+                                genre_negative = True
+                        return genre_positive, genre_negative
+                    for eitem in json_body["data"]:
+                        item = json_body["data"].index(eitem)
+                        genre_positive, genre_negative = genre_exc_func(item)
+                        if genre_positive and not genre_negative:
                             item_list.append(eitem)
-                    for query in json_body["data"][item][mtype]["demographics"]:
-                        query = json_body["data"][item][mtype]["demographics"].index(query)
-                        a_genre = json_body["data"][item][mtype]["demographics"][query]["mal_id"]
-                        if genre == a_genre:
+                        elif genre[0] == -1 and not genre_negative:
                             item_list.append(eitem)
+                else:
+                    for eitem in json_body["data"]:
+                        item = json_body["data"].index(eitem)
+                        for query in json_body["data"][item][mtype]["genres"]:
+                            query = json_body["data"][item][mtype]["genres"].index(query)
+                            a_genre = json_body["data"][item][mtype]["genres"][query]["mal_id"]
+                            if genre == a_genre:
+                                item_list.append(eitem)
+                        for query in json_body["data"][item][mtype]["demographics"]:
+                            query = json_body["data"][item][mtype]["demographics"].index(query)
+                            a_genre = json_body["data"][item][mtype]["demographics"][query]["mal_id"]
+                            if genre == a_genre:
+                                item_list.append(eitem)
             else:
                 for eitem in json_body["data"]:
                     item_list.append(eitem)
@@ -624,7 +689,7 @@ def request_thread(update: Update, context: CallbackContext):
     pref = release_status
     m_type = listtype_long
     type_short = listtype_short
-    global score, minimum, maximum
+    global score, minimum, maximum, genre_exclusion_bool
     score = int(score)
     minimum = list(map(int, minimum))
     maximum = list(map(int, maximum))
@@ -637,15 +702,8 @@ def request_thread(update: Update, context: CallbackContext):
         m_status = "n"
     elif userstatus in m_status_a:
         m_status = m_status_b[m_status_a.index(userstatus)]
-    pref_a = ["n", "1", "2", "3"]
     if pref == "No":
         pref = "n"
-    # if m_type == "animelist":
-    #     pref_b = ["No", "Airing", "Finished", "Not yet Aired"]
-    #     pref = pref_a[pref_b.index(pref)]
-    # elif m_type == "mangalist":
-    #     pref_b = ["No", "Publishing", "Finished", "Not yet Published"]
-    #     pref = pref_a[pref_b.index(pref)]
     if m_type == "mangalist":
         ch_genre_a = [0] * 47
         ch_genre_b = [1, 2, 5, 46, 28, 4, 8, 10, 26, 47, 14, 7, 22, 24, 36, 30, 37, 45, 48, 9, 49, 12, 3,
@@ -656,9 +714,16 @@ def request_thread(update: Update, context: CallbackContext):
                       6, 11, 35, 13, 17, 18, 38, 19, 20, 39, 40, 21, 23, 29, 31, 32, 43, 15, 42, 25, 27]
     for x in range(0, len(ch_genre_a)):
         ch_genre_a[x] = x
-    if genre == "0":
+    if genre == "0" or genre == [0, 0]:
         genre = str("n")
-    elif int(genre) in ch_genre_a:
+    if genre_exclusion_bool:
+        genre[0] = int(genre[0]) - 1
+        if genre[0] != -1:
+            genre[0] = ch_genre_b[ch_genre_a.index(int(genre[0]))]
+        genre[1] = int(genre[1]) - 1
+        if genre[1] != -1:
+            genre[1] = ch_genre_b[ch_genre_a.index(int(genre[1]))]
+    else:
         genre = int(genre) - 1
         genre = ch_genre_b[ch_genre_a.index(int(genre))]
     media_type = mediatype
@@ -681,9 +746,13 @@ def request_thread(update: Update, context: CallbackContext):
         sleeeping = 1
     else:
         return stop
+    error_count = 0
     c_url = str("https://api.jikan.moe/v4/users/{}/{}".format(username, m_type))
     while req_status:
         try:
+            if error_count >= 9:
+                print("More than 10 failed attempts, please debug and fix yo shit.")
+                return
             request = requests.get(c_url, timeout=10)
         except:
             print("API didn't respond. Trying again in 2 seconds...")
@@ -691,42 +760,50 @@ def request_thread(update: Update, context: CallbackContext):
         else:
             with open("./cache/{}-{}-p1.json".format(username, m_type), "w+") as json_file:
                 json_file.write(request.text)
-            if "data" in request.text:
+            if '"anime"' in request.text:
                 json_body = json.loads(request.text)
-            else:
+                req_status = False
+            elif '"manga"' in request.text:
+                json_body = json.loads(request.text)
+                req_status = False
+            elif '"status":' in request.text and '"report_url":"' not in request.text:
+                json_body = json.loads(request.text)
+                req_status = False
+            elif request.text == '{"data":[]}':
                 json_body = ""
-            if "'report_url'" not in str(json_body):
                 req_status = False
             else:
-                print("request failed :(")
+                json_body = ""
+                error_count = error_count + 1
     length = len(str(json_body))
     shuffle_title = []
     shuffle_url = []
     c_page = 1
-    if length < 145:
-        print("Your list doesn't seem to have content.")
-        return
-    elif '"status":400,' in json_body:
-        print("Invalid Request.")
-        return
-    elif '"status":404,' in json_body:
-        print("This anime/manga list does not exist.")
-        return
-    elif '"status":429,' in json_body:
-        print("You are sending too many requests.")
-        return
-    elif "BadResponseException" in str(json_body):
-        print("Something broke :(")
-        return
-    elif using_cache == "No":
-        message = "[INF] Page 1 successfully retrieved."
+    erroring = True
+    if using_cache == "No":
+        if length < 14:
+            message = "The acquired site does not have any content."
+        elif '"status":400,' in request.text:
+            message = "Invalid Request. Maybe that username doesn't exist?"
+        elif '"status":404,' in request.text:
+            message = "This anime/manga list does not exist."
+        elif '"status":429,' in request.text:
+            message = "You are sending too many requests."
+        elif "BadResponseException" in request.text:
+            message = "Something broke :("
+        elif using_cache == "No":
+            erroring = False
+            message = "[INF] Page 1 successfully retrieved."
         if not callbackhandler:
             update.message.reply_text(message)
         else:
             update.callback_query.message.edit_text(message)
+        if erroring:
+            return
     shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url,
                                          m_status, media_type, minimum, maximum, score)
     c_page = c_page + 1
+    error_count = 0
     while length > 150:
         if using_cache == "Yes" and os.path.isfile(r"./cache/{}-{}-p{}.json".format(username, m_type, c_page)):
             try:
@@ -742,6 +819,9 @@ def request_thread(update: Update, context: CallbackContext):
         n_url = str("https://api.jikan.moe/v4/users/{}/{}?page={}".format(username, m_type, c_page))
         while req_status:
             try:
+                if error_count >= 9:
+                    print("More than 10 failed attempts, please debug and fix yo shit.")
+                    return
                 request = requests.get(n_url, timeout=10)
             except:
                 print("API didn't respond. Trying again in 2 seconds...")
@@ -749,28 +829,45 @@ def request_thread(update: Update, context: CallbackContext):
             else:
                 with open("./cache/{}-{}-p{}.json".format(username, m_type, c_page), "w+") as json_file:
                     json_file.write(request.text)
-                if "data" in request.text:
+                if '"anime"' in request.text:
                     json_body = json.loads(request.text)
-                else:
+                    req_status = False
+                elif '"manga"' in request.text:
+                    json_body = json.loads(request.text)
+                    req_status = False
+                elif '"status":' in request.text:
+                    json_body = json.loads(request.text)
+                    req_status = False
+                elif request.text == '{"data":[]}':
                     json_body = ""
-                if "'report_url'" not in str(json_body):
                     req_status = False
                 else:
-                    print("request failed :(")
-        if "BadResponseException" in str(json_body):
-            print("The connection to MyAnimeList failed.")
-            return
-        if not json_body == "":
-            shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url,
-                                                 m_status, media_type, minimum, maximum, score)
-        c_url = c_url + n_url
+                    json_body = ""
+                    error_count = error_count + 1
+        erroring = True
         if using_cache == "No":
-            message = "[INF] Page {} successfully retrieved.".format(c_page)
+            if '"status":400,' in request.text:
+                message = "Invalid Request. Maybe that username doesn't exist?"
+            elif '"status":404,' in request.text:
+                message = "This anime/manga list does not exist."
+            elif '"status":429,' in request.text:
+                message = "You are sending too many requests."
+            elif "BadResponseException" in request.text:
+                message = "Something broke :("
+            elif using_cache == "No":
+                erroring = False
+                message = "[INF] Page {} successfully retrieved.".format(c_page)
             if not callbackhandler:
                 update.message.reply_text(message)
             else:
                 update.callback_query.message.edit_text(message)
+            if erroring:
+                return
+        if not json_body == "":
+            shuffle_title, shuffle_url = genre_s(genre, type_short, c_page, shuffle_title, shuffle_url,
+                                                 m_status, media_type, minimum, maximum, score)
         c_page = c_page + 1
+        error_count = 0
         length = len(str(json_body))
     if len(shuffle_title) == 0:
         message = "     Nothing out of your list matches configured search requirements."
@@ -792,15 +889,10 @@ def request_thread(update: Update, context: CallbackContext):
             .format(len(shuffle_title), telegram.utils.helpers.escape_markdown(rnd_pick, version=2),
                     telegram.utils.helpers.escape_markdown(shuffle_url[shuffle_title.index(rnd_pick)]), version=2)
     print(message)
-    # if using_cache == "No" and not cache_exists:
-    # if not last_message:
-    #     update.message.reply_text(message, parse_mode=ParseMode.MARKDOWN_V2)
-    # else:
     if not callbackhandler:
         update.message.reply_text(message, parse_mode=ParseMode.MARKDOWN_V2)
     else:
         update.callback_query.message.edit_text(message, parse_mode=ParseMode.MARKDOWN_V2)
-    # update.callback_query.message.edit_text(message, parse_mode=ParseMode.MARKDOWN_V2)
     return stop
 
 
