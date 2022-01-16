@@ -38,7 +38,7 @@ Due to recent changes (to my script) it is now possible to cache your _anime_-li
 
 ## Changelog:
 
-[Changelog.md - GitHub.com]()
+**[Changelog.md - GitHub.com](https://github.com/Vernoxvernax/PyAnimeList-Shuffle/blob/main/Caching.md)**
 
 ___
 You might ask yourself: why not use this great [Spin.moe](https://spin.moe/) app instead?
