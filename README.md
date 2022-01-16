@@ -37,37 +37,9 @@ Due to recent changes (to my script) it is now possible to cache your _anime_-li
 ![](https://i.imgur.com/nP7T9s7.png)
 
 ## Changelog:
-Commit `0ddaa9e`: (Telegram-bot)
-* new feature: excluding/blacklisting genres (two integers separated by a space)
-* printing genres/demographics/themes as an image for screens with smaller width
-  * image is smaller than 92kb in size; imgur used as cdn
-* fixed error handling (including printing errors)
-* removed unused comments and variables
 
-Commit `a8c1128` and `5afbbdc`: (Telegram-bot)
-* Fixed typo which resulted in unsuccessful spins when filtering anime episode amounts
-* Slightly improved error handling on failed requests
-* Increased request-timeout to 10 seconds, since v4 takes a little longer to answer.
-* Removed a debug print function
+[Changelog.md - GitHub.com]()
 
-Commit `73696e5` and `0ae9606`: (Telegram-bot and Script)
-* Update to Jikan v4.
-* Requests are now a lot faster since we are allowed to send 60 requests/s instead of only 30.
-* Bugs are currently everywhere (jikan) so problems may occur.
-* Fixed bug where the last cache entry lead to a sleep time of 4 seconds.
-
-Commit `488228a`: (Telegram-Bot)
-* Cache is now built on case-insensitive files. (no more "username.json" and "Username.json" files at the same time)
-* General improvements and removal of unused comments
-###### Until someone finds this repo and does not report me within seconds: I have decided to distance myself from version numbers and will start addressing changes in the changelog here by github's commit sha.
-
-v1.0.1:
-* Added filtering feature for both the script and telegram bot:
-  - Rating/score from the user (!not the community!, as additional data would've to be fetched, for every single entry on your list = impossible).
-  - Minimum and maximum amount of (episodes | chapters | volumes).
-* removed unused comments
-* general fixes
-###### When using the bot, please make sure to wait for answers and don't spam!
 ___
 You might ask yourself: why not use this great [Spin.moe](https://spin.moe/) app instead?
 Well even though it's a lot easier to use, it doesn't support filtering genres and cli so that's why.
