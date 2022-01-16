@@ -716,7 +716,7 @@ def request_thread(update: Update, context: CallbackContext):
         ch_genre_a[x] = x
     if genre == "0" or genre == [0, 0]:
         genre = str("n")
-    if genre_exclusion_bool:
+    elif genre_exclusion_bool:
         genre[0] = int(genre[0]) - 1
         if genre[0] != -1:
             genre[0] = ch_genre_b[ch_genre_a.index(int(genre[0]))]
