@@ -835,9 +835,10 @@ def request_thread(update: Update, context: CallbackContext):
                 elif '"manga"' in request.text:
                     json_body = json.loads(request.text)
                     req_status = False
-                elif '"status":' in request.text:
+                elif '"status":' in request.text and '"report_url":"' in request.text:
                     json_body = json.loads(request.text)
-                    req_status = False
+                    req_status = True
+                    error_count = error_count + 1
                 elif request.text == '{"data":[]}':
                     json_body = ""
                     req_status = False
