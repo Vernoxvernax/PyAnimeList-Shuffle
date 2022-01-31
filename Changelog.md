@@ -1,5 +1,8 @@
 ### Changelog:
 
+#### Commit [8c952de](https://github.com/Vernoxvernax/PyAnimeList-Shuffle/commit/8c952de01d19574f26bcb4f96c97bc8bfa89c2d3): (Telegram-bot)
+* fixed annoying bug which lead to saving jikan errors to the cache
+
 #### Commit [ea68cde](https://github.com/Vernoxvernax/PyAnimeList-Shuffle/commit/ea68cde3ec09f6d08a1d798fe0692f39f5603ed8): (Telegram-bot)
 * fixed stupid mistake: genre filter can now be avoided again
 
