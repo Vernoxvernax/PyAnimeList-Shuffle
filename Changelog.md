@@ -1,5 +1,9 @@
 ### Changelog:
 
+#### Commit [10367b3](https://github.com/Vernoxvernax/PyAnimeList-Shuffle/commit/10367b30463756e44be1eff2b8923023fe6f208a): (Telegram-bot, Script)
+* turned jikan api into variable and created new entries in config files
+* fixed bug which lead to infinite shuffling if cache is turned off (is there even anyone using this?)
+
 #### Commit [8c952de](https://github.com/Vernoxvernax/PyAnimeList-Shuffle/commit/8c952de01d19574f26bcb4f96c97bc8bfa89c2d3): (Telegram-bot)
 * fixed annoying bug which lead to saving jikan errors to the cache
 
