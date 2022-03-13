@@ -4,9 +4,17 @@
 
 This projects heavily relies on [Jikan](https://jikan.moe/) (v4), an unofficial MyAnimeList API.
 
-## Jikan v4 disclaimer:
-* Since v4 features new versions of the json files this projects uses, you'll have to remove your old cache.
-* Manga-lists currently don't contain explicit genres. Will update if fixed.
+## Jikan Changes for May:
+
+Jikan is discontinuing public user-lists.
+
+Very tragic indeed. At least they left us the code in the rest api.
+The script and telegram bot now have a new option to individually configure the jikan url.
+Until the last day of april we will keep using jikan's official servers. Further changes will come.
+
+After today's update, you should take a look at your config (telegram-hoster, and cli-scripters) so shuffling can continue to work.
+
+Stay safe! I'm out.
 
 ## Telegram Bot:
 #### https://t.me/pyanimelist_bot

@@ -8,7 +8,7 @@ import configparser   # handling config files
 
 
 def op():
-    global username, cache_check
+    global username, cache_check, jikan_url
     # This function clearly checks what the user wants to do when executing the script.
 
     # Checking if the config file and cache folder is existent.
@@ -18,11 +18,14 @@ def op():
         cache_config = config["cache"]
         username = cache_config["default_username"]
         cache_check = cache_config["enabled"]
+        jikan = config["jikan"]
+        jikan_url = jikan["jikan_url"]
         if not os.path.exists("pylist-cache"):
             os.makedirs("pylist-cache")
     elif not os.path.exists("pyanimelist.conf"):
         username = ""
         cache_check = ""
+        jikan_url = "https://api.jikan.moe/v4"
     print("Please choose what to do:"
           "\n[1] MyAnimeList SHUFFLE"
           "\n[2] Open the settings (caching, default username)"
@@ -93,7 +96,8 @@ def settings():
             username = ask_default_username()
             # writing input to the local file
             with open("pyanimelist.conf", "a+") as config:
-                config.write("[cache]\nenabled = {}\ndefault_username = {}".format(caching_enabled, username))
+                config.write("[cache]\nenabled = {}\ndefault_username = {}\n\n[jikan]\n"
+                             "jikan_url = https://api.jikan.moe/v4".format(caching_enabled, username))
         else:
             return
     # If the config is existent, ask what the user wants to change, if anything at all.
@@ -589,7 +593,7 @@ def requesting():
         print("")
     print("Loading page:", x)
     # Change below domain, if you are having connection issues.
-    c_url = str("https://api.jikan.moe/v4/users/{}/{}".format(username, m_type))
+    c_url = str("{}/users/{}/{}".format(jikan_url, username, m_type))
     while req_status:
         try:
             request = requests.get(c_url, timeout=6)
@@ -636,7 +640,7 @@ def requesting():
             req_status = True
         time.sleep(sleeeping)
         print("Loading page:", c_page)
-        n_url = str("https://api.jikan.moe/v4/users/{}/{}?page={}".format(username, m_type, c_page))
+        n_url = str("{}/users/{}/{}?page={}".format(jikan_url, username, m_type, c_page))
         while req_status:
             try:
                 request = requests.get(n_url, timeout=6)
@@ -648,7 +652,7 @@ def requesting():
                         username, m_type, c_page)):
                     with open("./pylist-cache/{}-{}-p{}.json".format(username, m_type, c_page), "a+") as json_file:
                         json_file.write(request.text)
-                    json_body = json.loads(request.text)
+                json_body = json.loads(request.text)
                 req_status = False
         if "BadResponseException" in str(json_body):
             print("The connection to MyAnimeList failed.")

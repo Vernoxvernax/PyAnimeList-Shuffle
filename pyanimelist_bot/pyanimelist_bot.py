@@ -29,12 +29,14 @@ def reading_config_file():
     # ----------------------------- telegram.conf
     # [config]
     # TOKEN = <token>
+    # JIKAN_URL = https://api.jikan.moe/v4
     # -----------------------------
     config_file = configparser.ConfigParser()
     config_file.read("telegram.conf")
     config = config_file["config"]
     token = config["TOKEN"]
-    return token
+    jikan_url = config["JIKAN_URL"]
+    return token, jikan_url
 
 
 def telegram_conf(token):
@@ -99,8 +101,9 @@ def adding_handler():
 
 
 def main():
+    global jikan_url
     print("Starting telegram bot.")
-    token = reading_config_file()
+    token, jikan_url = reading_config_file()
     telegram_conf(token)
     adding_handler()
 
@@ -747,7 +750,7 @@ def request_thread(update: Update, context: CallbackContext):
     else:
         return stop
     error_count = 0
-    c_url = str("https://api.jikan.moe/v4/users/{}/{}".format(username, m_type))
+    c_url = str("{}/users/{}/{}".format(jikan_url, username, m_type))
     while req_status:
         try:
             if error_count >= 9:
@@ -816,7 +819,7 @@ def request_thread(update: Update, context: CallbackContext):
             req_status = True
         time.sleep(sleeeping)
         print("Loading page:", c_page)
-        n_url = str("https://api.jikan.moe/v4/users/{}/{}?page={}".format(username, m_type, c_page))
+        n_url = str("{}/users/{}/{}?page={}".format(jikan_url, username, m_type, c_page))
         while req_status:
             try:
                 if error_count >= 9:
