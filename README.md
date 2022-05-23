@@ -4,17 +4,15 @@
 
 This projects heavily relies on [Jikan](https://jikan.moe/) (v4), an unofficial MyAnimeList API.
 
-## Jikan Changes for May:
+## Jikan User-Lists Removal:
 
-Jikan is discontinuing public user-lists.
+So, the api endpoint we've been using is gone, at least from the public api.
+I've set up a selfhosted api endpoint for the telegram bot.
+This one will continue to work (faster compaired to the public rest) but I won't be making it public (for obvious reasons).
 
-Very tragic indeed. At least they left us the code in the rest api.
-The script and telegram bot now have a new option to individually configure the jikan url.
-Until the last day of april we will keep using jikan's official servers. Further changes will come.
+In the coming days, I'll put out a small guide how to set up your own jikan-rest in case you for some reason cannot live without the cli version of this script.
 
-After today's update, you should take a look at your config (telegram-hoster, and cli-scripters) so shuffling can continue to work.
-
-Stay safe! I'm out.
+If you like this project, give me some kind of indication, I'm hardly doing this only for myself.
 
 ## Telegram Bot:
 #### https://t.me/pyanimelist_bot
