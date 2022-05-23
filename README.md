@@ -6,11 +6,11 @@ This projects heavily relies on [Jikan](https://jikan.moe/) (v4), an unofficial 
 
 ## Jikan User-Lists Removal:
 
-So, the api endpoint we've been using is gone, at least from the public api.
+So, the api endpoint we've been using, is gone, at least from the public api.
 I've set up a selfhosted api endpoint for the telegram bot.
-This one will continue to work (faster compaired to the public rest) but I won't be making it public (for obvious reasons).
+This one will continue to work (faster compared to the public rest), but I won't be making it public (for obvious reasons).
 
-In the coming days, I'll put out a small guide how to set up your own jikan-rest in case you for some reason cannot live without the cli version of this script.
+In the coming days, I'll put out a small guide on how to set up your own jikan-rest, in case you, for some reason, cannot live without the cli version of this script.
 
 If you like this project, give me some kind of indication, I'm hardly doing this only for myself.
 
