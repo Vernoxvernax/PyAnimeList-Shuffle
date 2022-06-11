@@ -127,7 +127,7 @@ def unknown(update: Update, context: CallbackContext) -> None:
 
 
 def shuffle(update: Update, context: CallbackContext) -> None:
-    print("User just initiated shuffle.")
+    print("{} just initiated shuffle.".format(update.message.from_user.username)) # Some might find this questionable. I just thing its good to know who the person is, ddosing my telegram bot.
     message = "Please enter your MyAnimeList username:"
     update.message.reply_text(text=message)
     # print(update.message.text)
@@ -572,7 +572,7 @@ def request_thread(update: Update, context: CallbackContext):
                         max_list.append(max_check)
                 item_list = max_list.copy()
             if not item_list:
-                print("[INF] Content of page {} did not meet your filters.".format(c_page))
+                # print("[INF] Content of page {} did not meet your filters.".format(c_page))
                 return shuffle_title, shuffle_url
             for item in item_list:
                 item_index = item_list.index(item)
@@ -680,7 +680,7 @@ def request_thread(update: Update, context: CallbackContext):
                         max_list.append(max_check)
                 item_list = max_list.copy()
             if not item_list:
-                print("[INF] Content of page {} did not meet your filters.".format(c_page))
+                # print("[INF] Content of page {} did not meet your filters.".format(c_page))
                 return shuffle_title, shuffle_url
             for item in item_list:
                 item_index = item_list.index(item)
@@ -818,7 +818,6 @@ def request_thread(update: Update, context: CallbackContext):
         else:
             req_status = True
         time.sleep(sleeeping)
-        print("Loading page:", c_page)
         n_url = str("{}/users/{}/{}?page={}".format(jikan_url, username, m_type, c_page))
         while req_status:
             try:
@@ -892,7 +891,7 @@ def request_thread(update: Update, context: CallbackContext):
                   "\n     [{} \- MyAnimeList\.net]({})"\
             .format(len(shuffle_title), telegram.utils.helpers.escape_markdown(rnd_pick, version=2),
                     telegram.utils.helpers.escape_markdown(shuffle_url[shuffle_title.index(rnd_pick)]), version=2)
-    print(message)
+    # print(message) ??
     if not callbackhandler:
         update.message.reply_text(message, parse_mode=ParseMode.MARKDOWN_V2)
     else:
