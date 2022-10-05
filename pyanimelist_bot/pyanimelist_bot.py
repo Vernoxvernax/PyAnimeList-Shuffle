@@ -5,7 +5,6 @@ import os.path
 import time
 import json
 import requests
-from requests import Timeout
 import random
 import threading            # to handle multiple requests at the same time
 from telegram import Update, ReplyKeyboardRemove, InlineKeyboardButton, InlineKeyboardMarkup, \
@@ -49,14 +48,12 @@ def telegram_conf(token):
     dispatcher = updater.dispatcher
 
 
-def adding_handler():
+def add_handler():
     start_handler = CommandHandler('start', start)
     dispatcher.add_handler(start_handler)
+    again_handler = CommandHandler('last', last)
+    dispatcher.add_handler(again_handler)
     # Shuffle question and answer processing
-    # shuffle_handler = CommandHandler("shuffle", shuffle)
-    # dispatcher.add_handler(shuffle_handler)
-    # shuffle_processing_handler = MessageHandler(Filters.text, shuffle_processing)
-    # dispatcher.add_handler(shuffle_processing_handler)
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('shuffle', shuffle)],
         states={
@@ -105,7 +102,7 @@ def main():
     print("Starting telegram bot.")
     token, jikan_url = reading_config_file()
     telegram_conf(token)
-    adding_handler()
+    add_handler()
 
 
 # Here come the telegram functions:
@@ -118,7 +115,8 @@ def start(update: Update, context: CallbackContext) -> None:
     message = "Hello, this is your personal telegram bot to get random entries from your MyAnimeList." \
               "\nGitHub: " \
               '[PyAnimeList-Shuffle](https://github.com/Vernoxvernax/PyAnimeList-Shuffle)' \
-              '\nTo start shuffling type: /shuffle.'
+              '\nTo start shuffling type: /shuffle.' \
+              '\nTo re-shuffle with the latest spin, type: /last. (always uses cache)'
     context.bot.send_message(chat_id=update.effective_chat.id, parse_mode="Markdown", text=message)
 
 
@@ -127,12 +125,38 @@ def unknown(update: Update, context: CallbackContext) -> None:
 
 
 def shuffle(update: Update, context: CallbackContext) -> None:
-    print("{} just initiated shuffle.".format(update.message.from_user.username)) # Some might find this questionable. I just thing its good to know who the person is, ddosing my telegram bot.
+    print("Someone's shuffling...")
     message = "Please enter your MyAnimeList username:"
     update.message.reply_text(text=message)
     # print(update.message.text)
     # reply=ReplyKeyboardMarkup(input_field_placeholder="MyAnimeList.net username")
     return USERNAME
+
+
+def last(update: Update, context: CallbackContext) -> None:
+    if os.path.isfile(r"./cache/{}-last.json".format(update.message.from_user.username)):
+        global username, listtype_short, listtype_long, mediatype, userstatus, release_status,\
+            score, maximum, minimum, user_genre, using_cache, genre_exclusion_bool, callbackhandler, telegram_user
+        with open("./cache/{}-last.json".format(update.message.from_user.username)) as json_file:
+            json_body = json.load(json_file)
+            username = json_body["username"]
+            listtype_short = json_body["listtype_short"]
+            listtype_long = json_body["listtype_long"]
+            mediatype = json_body["mediatype"]
+            userstatus = json_body["userstatus"]
+            release_status = json_body["release_status"]
+            score = json_body["score"]
+            maximum = json_body["maximum"]
+            minimum = json_body["minimum"]
+            user_genre = json_body["user_genre"]
+            using_cache = "Yes"
+            genre_exclusion_bool = json_body["genre_exclusion_bool"]
+            callbackhandler = False
+            telegram_user = update.message.from_user.username
+        # update.message.reply_text("[INF] Processing...")
+        request_thread(update, context)
+    else:
+        update.message.reply_text("[ERR] You haven't shuffled even once. Try /shuffle.")
 
 
 def username_end(update: Update, context: CallbackContext) -> None:
@@ -145,7 +169,7 @@ def username_end(update: Update, context: CallbackContext) -> None:
         return USERNAME
     else:
         # update.message.reply_text("Username set to: {}".format(update.message.text))
-        update.message.reply_text("Username set to: {}".format(username_input))
+        update.message.reply_text("Username has been set to: {}".format(username_input))
     message = "Please choose the type of list you want to shuffle:"
     listtype_reply = [
         [
@@ -336,44 +360,11 @@ def score_end(update: Update, context: CallbackContext):
 
 def min_end(update: Update, context: CallbackContext):
     global counter, maximum, minimum
-    genre_reply = "```\n" \
-                  "> 0 -> don't do anything" \
-                  "\n> 1 -> results with [1]" \
-                  "\n> 0 32 -> results without [32]" \
-                  "\n> 1 2 -> results w/ [1] excl. [2]\n" \
-                  "\n.Genres.           .Themes." \
-                  "\nAction (1)        |Cars (23)" \
-                  "\nAdventure (2)     |Demons (24)" \
-                  "\nAvant Garde (3)   |Game (25)" \
-                  "\nAward Winning (4) |Harem (26)" \
-                  "\nBoys Love (5)     |Historical (27)" \
-                  "\nComedy (6)        |Martial Arts (28)" \
-                  "\nDrama (7)         |Mecha (29)" \
-                  "\nFantasy (8)       |Military (30)" \
-                  "\nGirls Love (9)    |Music (31)" \
-                  "\nGourmet (10)      |Parody (32)" \
-                  "\nHorror (11)       |Police (33)" \
-                  "\nMystery (12)      |Psychological (34)" \
-                  "\nRomance (13)      |Samurai (35)" \
-                  "\nSci-Fi (14)       |School (36)" \
-                  "\nSlice of Life (15)|Space (37)" \
-                  "\nSports (16)       |Super Power (38)" \
-                  "\nSupernatural (17) |Vampire (39)" \
-                  "\nSuspense (18)     |" \
-                  "\nWork Life (19)    |.Demographics." \
-                  "\n                  |Josei (40)" \
-                  "\n.Explicit Genres. |Kids (41)" \
-                  "\nEcchi (20)        |Seinen (42)" \
-                  "\nErotica (21)      |Shoujo (43)" \
-                  "\nHentai (22)       |Shounen (44)```"
-    # genre_message = "Prioritizing/Avoiding genres?:\n{}".format(genre_reply)
     genre_message = "Prioritizing/Avoiding genres?:"
     if listtype == "Manga":
         genre_message = "Prioritizing/Avoiding genres?:" \
                         "```\n.Manga exclusive tags." \
                         "\nDoujinshi (45)\nGender Bender (46)```"
-        # genre_reply = genre_reply + "``` \n\n.Manga exclusive tags." \
-        #                             "\nDoujinshi (45)\nGender Bender (46)```"
     if counter == 0:
         try:
             min_answer = update.callback_query.data
@@ -438,8 +429,9 @@ def min_end(update: Update, context: CallbackContext):
 
 
 def cache_check(update: Update, context: CallbackContext):
-    global cache_exists, user_genre, using_cache, callbackhandler, queue_msg, genre_exclusion_bool
+    global cache_exists, user_genre, using_cache, callbackhandler, queue_msg, genre_exclusion_bool, telegram_user
     user_genre = update.message.text
+    telegram_user = update.message.from_user.username
     genre_exclusion_bool = False
     if " " in user_genre:
         user_genre = user_genre.split()
@@ -687,12 +679,41 @@ def request_thread(update: Update, context: CallbackContext):
                 shuffle_title.append(item_list[item_index][mtype]['title'])
                 shuffle_url.append(item_list[item_index][mtype]['url'])
             return shuffle_title, shuffle_url
+    # writing last spin info
+    global score, minimum, maximum, genre_exclusion_bool
+    with open("./cache/{}-last.json".format(telegram_user), "w+") as json_file:
+        # json_body = json.load(json_file)
+        settings = {
+            "username": username,
+            "listtype_short": listtype_short,
+            "listtype_long": listtype_long,
+            "mediatype": mediatype,
+            "userstatus": userstatus,
+            "release_status": release_status,
+            "score": score,
+            "maximum": maximum,
+            "minimum": minimum,
+            "user_genre": user_genre,
+            "genre_exclusion_bool": genre_exclusion_bool
+        }
+        json_obj = json.dumps(settings)
+        json_file.write(json_obj)
+        # username = json_body["username"]
+        # listtype_short = json_body["listtype_short"]
+        # mediatype = json_body["mediatype"]
+        # userstatus = json_body["userstatus"]
+        # release_status = json_body["release_status"]
+        # score = json_body["score"]
+        # maximum = json_body["maximum"]
+        # minimum = json_body["minimum"]
+        # user_genre = json_body["user_genre"]
+        # using_cache = "Yes"
+        # genre_exclusion_bool = json_body["genre_exclusion_bool"]
     # defining variables and assigning values
     genre = user_genre
     pref = release_status
     m_type = listtype_long
     type_short = listtype_short
-    global score, minimum, maximum, genre_exclusion_bool
     score = int(score)
     minimum = list(map(int, minimum))
     maximum = list(map(int, maximum))
